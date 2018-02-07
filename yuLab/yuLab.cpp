@@ -197,6 +197,7 @@ void yuLab::toggleStop() {
 void yuLab::recoPro() {
 	//if (vtool->stop)
 	//	return;
+	vtool->background = vtool->background(vtool->initRect).clone();
 	while (!vtool->stop) {     //一直循环
 		if (!vtool->pause) {     //如果不暂停
 						  //long long t0 = getTickCount();
@@ -206,9 +207,12 @@ void yuLab::recoPro() {
 			++vtool->counts;
 			if (vtool->currentFrame.cols > 1000 && vtool->currentFrame.rows > 900)
 				cv::resize(vtool->currentFrame, vtool->currentFrame, Size(), 0.65, 0.65);   //尺寸缩小成原来一半
-			if(ImageLabel->scalling)
+			//滤波
+			//Mat lb = vtool->currentFrame.clone();
+			//bilateralFilter(lb, vtool->currentFrame, 45, 90, 22);
+			if(ImageLabel->scalling){
 				vtool->currentFrame = vtool->currentFrame(vtool->initRect).clone();              //取ROI
-
+			}
 
 																		//vector<Rect> rects = getRects(currentFrame, box_rows, box_cols);    //各只虾的外接矩形框
 			vector<Rect> rects = vtool->getRects(vtool->currentFrame);

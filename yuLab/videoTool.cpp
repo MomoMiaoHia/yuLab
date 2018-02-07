@@ -35,6 +35,8 @@ void videoTool::init(VideoCapture& capture) {
 	
 	if (firstFrame.cols>1000 && firstFrame.rows>900)
 		resize(firstFrame, firstFrame, Size(), 0.65, 0.65);
+
+	
 	/*namedWindow(win);
 	setMouseCallback(win, mouseWrapper,this);
 	imshow(win, firstFrame);
@@ -86,13 +88,14 @@ void videoTool::onMouse(int event, int x, int y, int flags, void* param) {
 
 vector<Rect> videoTool::getRects(const Mat& _img) {
 	//确保为灰度图
-	Mat img = _img.clone();
+	Mat img1 = _img.clone(),img;
 	if (_img.channels() == 3)
-		cvtColor(_img, img, CV_BGR2GRAY);
+		cvtColor(_img, img1, CV_BGR2GRAY);
+	absdiff(img1, background, img);
 	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
 	vector<Rect> result;
 	//int kk = 0;
-	threshold(img, img, 0, 255, THRESH_BINARY + THRESH_OTSU);
+	threshold(img, img, 90, 255, THRESH_BINARY);
 	RemoveSmallRegion2(img, img, 100, 1);
 	vector<vector<Point> >contours;
 	findContours(img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);

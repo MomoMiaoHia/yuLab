@@ -25,6 +25,7 @@ public:
 	XiaDetect detect;	//虾死亡判定类
 	Mat currentFrame;
 	Mat firstFrame;
+	Mat background;	//	前景
 	//鼠标回调函数
 	Rect initRect;
 	bool flag;
