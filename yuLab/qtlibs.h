@@ -24,6 +24,9 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QPainter>
+#include <QDialog>
+#include <QSizePolicy>
+#include "myInputDlg.h"
 
 
 #endif // LIBS_H

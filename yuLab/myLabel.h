@@ -15,6 +15,7 @@ public:
 	bool scalling;//Ëõ·Å
 	QRect selectedRect;
 	bool startcut;
+	bool startdm;
 
 signals:
 	void cutFinished();

@@ -1,6 +1,7 @@
 #pragma once
 #include "yuLab.h"
 #include "oplibs.h"
+#include "qtlibs.h"
 #include <QWidget>
 #include <QFile>
 #include <QFileDialog>
@@ -21,18 +22,20 @@ yuLab::yuLab(QWidget *parent)
 	// ImageLabel=new QLabel(tr("video play"));
 	
 	positionSlider = new QSlider(Qt::Horizontal);
-	timer = new QTimer();
-	timer->setInterval(1000);   //1000ms刷新一次进度条
+	/*timer = new QTimer();
+	timer->setInterval(1000); */  //1000ms刷新一次进度条
 	image = new QImage();
 	//tab = new QWidget();
 	ImageLabel = new myLabel();
 	ImageLabel->setScaledContents(true);
 	ImageLabel->setMinimumSize(400, 300);
-
+	//ImageLabel->setMaximumSize(800, 600);
+	LeftLayout->addStretch();
 	LeftLayout->addWidget(ImageLabel);
 	//vp->setAspectRatioMode(Qt::IgnoreAspectRatio);
 	mstatus = false;
 	LeftLayout->addWidget(positionSlider);
+	LeftLayout->addStretch();
 	positionSlider->setEnabled(false);
 	//LeftLayout->addWidget(ImageLabel);
 	//vtool = new videoTool();
@@ -55,22 +58,18 @@ yuLab::yuLab(QWidget *parent)
 	/* RightLayout=new QGridLayout();
 	TextLabel=new QLabel(tr("TextLabel"));
 	RightLayout->addWidget(TextLabel);*/
-	/**下悬停窗口**/
-	QDockWidget *dock = new QDockWidget(tr("targets info"), this);
-	dock->setFeatures(QDockWidget::AllDockWidgetFeatures);
-	dock->setAllowedAreas(Qt::RightDockWidgetArea);
-	QTextEdit *tel = new QTextEdit();
-	tel->setText(tr("window1"));
-	dock->setWidget(tel);
-	addDockWidget(Qt::RightDockWidgetArea, dock);
+	
 	/*----------*/
-	QGridLayout *mainLayout = new QGridLayout(this);
+	QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-	mainLayout->setMargin(15);
+	//mainLayout->setMargin(15);
 	mainLayout->setSpacing(10);
-	mainLayout->addLayout(LeftLayout, 0, 0);
+	mainLayout->setContentsMargins(10, 10, 10, 10);
+	mainLayout->addStretch();
+	mainLayout->addLayout(LeftLayout);
 	//mainLayout->addLayout(RightLayout,0,1);
-	mainLayout->addLayout(BottomLayout, 1, 0, 1, 1);
+	mainLayout->addLayout(BottomLayout);
+	mainLayout->addStretch();
 	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
 
 	/**主界面 **/
@@ -85,23 +84,35 @@ yuLab::yuLab(QWidget *parent)
 
 void yuLab::createActions() {
 	openFileAction = new QAction(tr("open"), this);
+	closeFileAction = new QAction(tr("close"), this);
+	bgRemoveAction = new QAction(tr("remove background"), this);
+	smothingAction = new QAction(tr("smooth"), this);
+	demarcateAction = new QAction(tr("demarcate"), this);
 	//事件关联
 	connect(openFileAction, SIGNAL(triggered()), this, SLOT(ShowOpenFile()));
+	connect(bgRemoveAction, SIGNAL(triggered()), this, SLOT(createRemovingWin()));
+	//nnect(demarcateAction, SIGNAL(triggered()), this, SLOT(createDemarcatingWin()));
+	connect(demarcateAction, SIGNAL(triggered()), this, SLOT(toggleDemarcate()));
 	connect(StPa, SIGNAL(clicked()), this, SLOT(togglePlayback()));
-	/*connect(timer, SIGNAL(timeout()), this, SLOT(onTimerOut()));
+	connect(this, SIGNAL(updateSlider()), this, SLOT(onUpdating()));/**/
 	connect(positionSlider, SIGNAL(sliderPressed()), this, SLOT(sliderClicked()));
 	connect(positionSlider, SIGNAL(sliderMoved(int)), this, SLOT(sliderMove()));
-	connect(positionSlider, SIGNAL(sliderReleased()), this, SLOT(sliderRelease()));*/
+	connect(positionSlider, SIGNAL(sliderReleased()), this, SLOT(sliderRelease()));
 	connect(Stop, SIGNAL(clicked()), this, SLOT(toggleStop()));
 	connect(Pic_cut, SIGNAL(clicked()), this, SLOT(toggleCut()));
 	connect(ImageLabel, SIGNAL(cutFinished()), this, SLOT(onCutFinished()));
 	connect(this, SIGNAL(startPro()), this, SLOT(recoPro()));
+	
 }
 
 void yuLab::createMenus() {
 	//fileMenus
 	fileMenu = menuBar()->addMenu(tr("file"));
 	fileMenu->addAction(openFileAction);
+	fileMenu->addAction(closeFileAction);
+	menuBar()->addAction(bgRemoveAction);
+	menuBar()->addAction(smothingAction);
+	menuBar()->addAction(demarcateAction);
 }
 
 void yuLab::fitcut() {
@@ -110,6 +121,7 @@ void yuLab::fitcut() {
 	ImageLabel->scalling = true;
 	vtool->initRect=Rect(ImageLabel->selectedRect.x(),ImageLabel->selectedRect.y(),ImageLabel->selectedRect.width(),ImageLabel->selectedRect.height());
 	//rectangle(vtool->firstFrame, vtool->initRect, Scalar(0, 0, 255), 1);
+	//display(vtool->firstFrame);
 }
 
 void yuLab::ShowOpenFile() {
@@ -144,22 +156,30 @@ void yuLab::togglePlayback() {
 	}
 }
 
-/*void yuLab::onTimerOut() {
-	positionSlider->setValue(Player->position()*maxtimeV / Player->duration());
-}
+void yuLab::onUpdating() {
+	positionSlider->setValue(vtool->currentframe_n);
+}/**/
 
 void yuLab::sliderClicked() {
-	Player->setPosition(positionSlider->value()*Player->duration() / maxtimeV);
+	//Player->setPosition(positionSlider->value()*Player->duration() / maxtimeV);
+	vtool->isupdate = true;
+	vtool->currentframe_n = positionSlider->value();
+	vtool->capture.set(CV_CAP_PROP_POS_FRAMES, positionSlider->value());
 }
 
 void yuLab::sliderMove() {
-	timer->stop();
-	Player->setPosition(positionSlider->value()*Player->duration() / maxtimeV);
+	//timer->stop();
+	//Player->setPosition(positionSlider->value()*Player->duration() / maxtimeV);
+	vtool->currentframe_n = positionSlider->value();
+	vtool->capture.set(CV_CAP_PROP_POS_FRAMES, positionSlider->value());
+	vtool->capture >> vtool->currentFrame;
+	//display(vtool->currentFrame);
 }
 
 void yuLab::sliderRelease() {
-	timer->start();
-}*/
+	//timer->start();
+	vtool->isupdate = false;
+}
 
 void yuLab::display(Mat mat) {
 	QImage img;
@@ -178,6 +198,7 @@ void yuLab::display(Mat mat) {
 void yuLab::onCutFinished() {
 	if(ImageLabel->startcut)
 		display(vtool->firstFrame);
+	startsilder();
 }
 
 void yuLab::toggleStop() {
@@ -197,18 +218,23 @@ void yuLab::toggleStop() {
 void yuLab::recoPro() {
 	//if (vtool->stop)
 	//	return;
+	//vtool->background = vtool->background(vtool->initRect).clone();
 	while (!vtool->stop) {     //一直循环
-		if (!vtool->pause) {     //如果不暂停
+		if (!vtool->pause&&!vtool->isupdate) {     //如果不暂停也不拖动进度条
 						  //long long t0 = getTickCount();
-			(vtool->capture) >> vtool->currentFrame;         //读入一帧
+			vtool->capture >> vtool->currentFrame;         //读入一帧
 			if (!vtool->currentFrame.data)
 				return;
 			++vtool->counts;
-			if (vtool->currentFrame.cols > 1000 && vtool->currentFrame.rows > 900)
+			++vtool->currentframe_n;emit(updateSlider());
+			if (vtool->currentFrame.cols > 800 && vtool->currentFrame.rows > 600)
 				cv::resize(vtool->currentFrame, vtool->currentFrame, Size(), 0.65, 0.65);   //尺寸缩小成原来一半
-			if(ImageLabel->scalling)
+			//滤波
+			//Mat lb = vtool->currentFrame.clone();
+			//bilateralFilter(lb, vtool->currentFrame, 45, 90, 22);
+			if(ImageLabel->scalling){
 				vtool->currentFrame = vtool->currentFrame(vtool->initRect).clone();              //取ROI
-
+			}
 
 																		//vector<Rect> rects = getRects(currentFrame, box_rows, box_cols);    //各只虾的外接矩形框
 			vector<Rect> rects = vtool->getRects(vtool->currentFrame);
@@ -260,3 +286,94 @@ void yuLab::toggleCut() {
 	}
 }
 
+void yuLab::startsilder() {
+	positionSlider->setEnabled(true);
+	positionSlider->setMinimum(0);
+	positionSlider->setMaximum(vtool->totalframe_n);
+	positionSlider->setSingleStep((int)vtool->fps);
+	positionSlider->setValue(vtool->currentframe_n);
+}
+
+
+void yuLab::createRemovingWin() {
+	bgRemovingDlg = new myDlg(this);
+	bgRemovingDlg->setModal(true);
+	bgRemovingDlg->show();
+}
+
+void yuLab::createDemarcatingWin() {
+	demarcateDlg = new myInputDlg(this);
+	demarcateDlg->setModal(false);
+	demarcateDlg->show();
+}
+
+void yuLab::toggleDemarcate() {
+	/**右悬停窗口**/
+	demarcateDock = new QDockWidget(tr("demarcate"), this);
+	demarcateDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+	demarcateDock->setAllowedAreas(Qt::RightDockWidgetArea);
+	//dock->setMaximumSize(400, 300);
+	detable = new QWidget();
+	input_layout = new QVBoxLayout(demarcateDock);
+	tip1= new QLabel(tr("actual lenth(cm):"));
+	tip1->setScaledContents(true);
+	tip2 = new QLabel(tr("inputed lenth(cm):"));
+	tip3 = new QLabel();
+	tip3->setScaledContents(true);
+	tip4 = new QLabel(tr("selected lenth(pixel):"));
+	tip5 = new QLabel();
+	tip3->setScaledContents(true);
+	inputLenEdit = new QLineEdit();
+	selected = new QPushButton(tr("select"));
+	lenSubmit = new QPushButton(tr("submit"));
+
+	input_layout->addWidget(tip1);
+	input_layout->addWidget(inputLenEdit);
+	input_layout->addWidget(tip2);
+	input_layout->addWidget(tip3);
+	input_layout->addWidget(tip4);
+	input_layout->addWidget(tip5);
+	input_layout->addWidget(selected);
+	input_layout->addWidget(lenSubmit);
+
+	input_layout->setMargin(15);
+	input_layout->setSpacing(10);
+	input_layout->setSizeConstraint(QLayout::SetFixedSize);/**/
+
+	detable->setLayout(input_layout);
+	demarcateDock->setWidget(detable);
+	//demarcateDock->setLayout(input_layout);
+	addDockWidget(Qt::RightDockWidgetArea, demarcateDock);
+
+	connect(selected, SIGNAL(clicked()), this, SLOT(toggleSelect()));
+	connect(lenSubmit, SIGNAL(clicked()), this, SLOT(toggleLenSubmit()));
+}
+
+void yuLab::toggleSelect() {
+	if (ImageLabel->startdm) {
+		selected->setText("select");
+		selectLen = ImageLabel->selectedRect.width() > 1 ? ImageLabel->selectedRect.width() : 0;
+		ImageLabel->selectedRect = QRect::QRect(ImageLabel->m_beginPoint, ImageLabel->m_endPoint);
+		tip5->setText(QString::number(selectLen, 10));
+		ImageLabel->startdm = false;
+	}
+	else {
+		selected->setText("finish select");
+		ImageLabel->selectedRect = QRect::QRect(ImageLabel->m_beginPoint, ImageLabel->m_endPoint);
+		ImageLabel->startdm = true;
+	}
+}
+
+void yuLab::toggleLenSubmit() {
+	QString tlen = inputLenEdit->text();
+	bool ok;
+	if (tlen.isEmpty()) {
+		inputLen = ImageLabel->width();
+		tip3->setText(QString::number(inputLen,10));
+	}
+	else {
+		inputLen = tlen.toInt(&ok);
+		tip3->setText(tlen);
+	}
+
+}

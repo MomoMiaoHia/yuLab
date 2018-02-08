@@ -14,9 +14,12 @@ videoTool::videoTool(string VideoName) {
 	capture.open(VideoName);
 	if (!capture.isOpened())
 		videoTool();
-	else{
+	else {
+		isupdate = false;
 		fps = capture.get(CV_CAP_PROP_FPS);
 		pause = true;
+		totalframe_n = capture.get(CV_CAP_PROP_FRAME_COUNT);
+		currentframe_n = 0;
 		counts = 0;
 		stop = false;
 		useMouse = true;
@@ -32,9 +35,11 @@ videoTool::~videoTool()
 void videoTool::init(VideoCapture& capture) {
 	//void mouseWrapper(int event, int x, int y, int flags, void* param);
 	capture >> firstFrame;
-	
+
 	if (firstFrame.cols>1000 && firstFrame.rows>900)
 		resize(firstFrame, firstFrame, Size(), 0.65, 0.65);
+
+
 	/*namedWindow(win);
 	setMouseCallback(win, mouseWrapper,this);
 	imshow(win, firstFrame);
@@ -86,9 +91,10 @@ void videoTool::onMouse(int event, int x, int y, int flags, void* param) {
 
 vector<Rect> videoTool::getRects(const Mat& _img) {
 	//确保为灰度图
-	Mat img = _img.clone();
+	Mat img1 = _img.clone(), img;
 	if (_img.channels() == 3)
 		cvtColor(_img, img, CV_BGR2GRAY);
+	//absdiff(img1, background, img);
 	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
 	vector<Rect> result;
 	//int kk = 0;

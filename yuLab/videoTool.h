@@ -12,11 +12,13 @@ public:
 	videoTool();
 	videoTool(string VideoName);
 	~videoTool();
-	//bool isopen;
+	bool isupdate;	//是否在调整进度条
 	string win = "Input";
 	VideoCapture capture;
 	double fps;
 	bool pause;	//是否暂停
+	unsigned int totalframe_n;
+	unsigned int currentframe_n;
 	unsigned int counts;	//当前帧数
 	bool stop;
 	vector<int>* status;
@@ -25,6 +27,7 @@ public:
 	XiaDetect detect;	//虾死亡判定类
 	Mat currentFrame;
 	Mat firstFrame;
+	Mat background;	//	前景
 	//鼠标回调函数
 	Rect initRect;
 	bool flag;

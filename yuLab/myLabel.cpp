@@ -4,6 +4,7 @@ myLabel::myLabel(QWidget *parent)
 	: QLabel(parent)
 {
 	startcut = false;
+	startdm = false;
 	scalling = false;
 }
 
@@ -17,11 +18,11 @@ void myLabel::mousePressEvent(QMouseEvent *event) {
 }
 
 void myLabel::paintEvent(QPaintEvent *event) {
-	if (!startcut)
+	if (!startcut&&!startdm)
 		return QLabel::paintEvent(event);
 	QLabel::paintEvent(event);
 	QPainter painter(this);
-	painter.setPen(QPen(Qt::blue,2));
+	painter.setPen(QPen(Qt::blue, 2));
 	painter.drawRect(selectedRect);
 }
 
@@ -30,6 +31,7 @@ void myLabel::mouseReleaseEvent(QMouseEvent *event) {
 	selectedRect = QRect::QRect(m_beginPoint, m_endPoint);
 	m_beginPoint = m_endPoint = QPoint(0, 0);
 	m_isMousePress = false;
-	emit(cutFinished());
+	if(startcut)
+		emit(cutFinished());
 	return QWidget::mouseReleaseEvent(event);
 }
