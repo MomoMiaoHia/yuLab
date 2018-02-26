@@ -86,13 +86,14 @@ void yuLab::createActions() {
 	openFileAction = new QAction(tr("open"), this);
 	closeFileAction = new QAction(tr("close"), this);
 	bgRemoveAction = new QAction(tr("remove background"), this);
-	smothingAction = new QAction(tr("smooth"), this);
+	smoothingAction = new QAction(tr("smooth"), this);
 	demarcateAction = new QAction(tr("demarcate"), this);
 	//事件关联
 	connect(openFileAction, SIGNAL(triggered()), this, SLOT(ShowOpenFile()));
 	connect(bgRemoveAction, SIGNAL(triggered()), this, SLOT(createRemovingWin()));
 	//nnect(demarcateAction, SIGNAL(triggered()), this, SLOT(createDemarcatingWin()));
 	connect(demarcateAction, SIGNAL(triggered()), this, SLOT(toggleDemarcate()));
+	connect(smoothingAction, SIGNAL(triggered()), this, SLOT(toggleSmooth()));
 	connect(StPa, SIGNAL(clicked()), this, SLOT(togglePlayback()));
 	connect(this, SIGNAL(updateSlider()), this, SLOT(onUpdating()));/**/
 	connect(positionSlider, SIGNAL(sliderPressed()), this, SLOT(sliderClicked()));
@@ -101,8 +102,9 @@ void yuLab::createActions() {
 	connect(Stop, SIGNAL(clicked()), this, SLOT(toggleStop()));
 	connect(Pic_cut, SIGNAL(clicked()), this, SLOT(toggleCut()));
 	connect(ImageLabel, SIGNAL(cutFinished()), this, SLOT(onCutFinished()));
+	//connect(this, SIGNAL(smthDlg::closeWin()), this, SLOT(finishSmth()));
 	connect(this, SIGNAL(startPro()), this, SLOT(recoPro()));
-	
+
 }
 
 void yuLab::createMenus() {
@@ -111,7 +113,8 @@ void yuLab::createMenus() {
 	fileMenu->addAction(openFileAction);
 	fileMenu->addAction(closeFileAction);
 	menuBar()->addAction(bgRemoveAction);
-	menuBar()->addAction(smothingAction);
+	menuBar()->addAction(smoothingAction);
+	startsmth = false;
 	menuBar()->addAction(demarcateAction);
 }
 
@@ -193,6 +196,14 @@ void yuLab::display(Mat mat) {
 	ImageLabel->setPixmap(QPixmap::fromImage(img));
 	ImageLabel->resize(ImageLabel->pixmap()->size());
 	ImageLabel->show();
+	/*if (startsmth) {
+		Mat bi_pic,ez_pic;
+		cvtColor(vtool->biRoi, bi_pic, CV_BGR2RGB);
+		ez_pic = vtool->ezRoi.clone();
+		QImage bi_img= QImage((const uchar*)(bi_pic.data), bi_pic.cols, bi_pic.rows, bi_pic.cols*bi_pic.channels(), QImage::Format_RGB888);
+		QImage ez_img = QImage((const uchar*)(ez_pic.data), ez_pic.cols, ez_pic.rows, ez_pic.cols*ez_pic.channels(), QImage::Format_Indexed8);
+		smoothingDlg->updateImage(bi_img,ez_img);
+	}*/
 }
 
 void yuLab::onCutFinished() {
@@ -237,6 +248,10 @@ void yuLab::recoPro() {
 			}
 
 																		//vector<Rect> rects = getRects(currentFrame, box_rows, box_cols);    //各只虾的外接矩形框
+			if (startsmth){
+				smoothingDlg->getData(vtool->bi_p, vtool->ez_p);
+				smoothingDlg->setData(vtool->currentFrame);
+			}
 			vector<Rect> rects = vtool->getRects(vtool->currentFrame);
 			for (size_t i = 0; i < rects.size(); ++i) {
 				if (rects[i].area() == 0)
@@ -376,4 +391,27 @@ void yuLab::toggleLenSubmit() {
 		tip3->setText(tlen);
 	}
 
+}
+
+void yuLab::toggleSmooth() {
+	smoothingDlg = new smthDlg(this);
+	smoothingDlg->setModal(false);
+	startsmth = true;
+	smoothingDlg->show();
+	connect(smoothingDlg, SIGNAL(sendP(int p)), this, SLOT(receiveP(int p)));
+	connect(smoothingDlg, SIGNAL(sendE(int e)), this, SLOT(receiveE(int e)));
+	connect(smoothingDlg, SIGNAL(destroyed()), this, SLOT(onSmthDestroyed()));
+}
+
+
+void yuLab::receiveP(int p) {
+	vtool->bi_p = p;
+}
+
+void yuLab::receiveE(int e) {
+	vtool->ez_p = e;
+}
+
+void yuLab::onSmthDestroyed() {
+	startsmth = false;
 }

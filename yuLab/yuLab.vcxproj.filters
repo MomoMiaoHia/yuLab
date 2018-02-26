@@ -88,6 +88,15 @@
     <ClCompile Include="myInputDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_smthDlg.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_smthDlg.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="smthDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="yuLab.h">
@@ -106,6 +115,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="myInputDlg.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="smthDlg.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

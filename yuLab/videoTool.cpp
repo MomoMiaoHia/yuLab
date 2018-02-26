@@ -21,6 +21,8 @@ videoTool::videoTool(string VideoName) {
 		totalframe_n = capture.get(CV_CAP_PROP_FRAME_COUNT);
 		currentframe_n = 0;
 		counts = 0;
+		bi_p = 0;
+		ez_p = 0;
 		stop = false;
 		useMouse = true;
 		status = new vector<int>(100, 0);
@@ -91,17 +93,24 @@ void videoTool::onMouse(int event, int x, int y, int flags, void* param) {
 
 vector<Rect> videoTool::getRects(const Mat& _img) {
 	//确保为灰度图
-	Mat img1 = _img.clone(), img;
+	Mat img = _img.clone();
+	if (bi_p)
+		onBi(img,biRoi);
+	else
+		biRoi = img.clone();
 	if (_img.channels() == 3)
 		cvtColor(_img, img, CV_BGR2GRAY);
 	//absdiff(img1, background, img);
 	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
 	vector<Rect> result;
 	//int kk = 0;
-	threshold(img, img, 0, 255, THRESH_BINARY + THRESH_OTSU);
-	RemoveSmallRegion2(img, img, 100, 1);
+	if (ez_p)
+		onEz(img, ezRoi);
+	else
+		threshold(img, ezRoi, 0, 255, THRESH_BINARY + THRESH_OTSU);
+	RemoveSmallRegion2(ezRoi, ezRoi, 100, 1);
 	vector<vector<Point> >contours;
-	findContours(img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+	findContours(ezRoi, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 	for (int i = 0;i < contours.size();++i) {
 		Rect rect = boundingRect(contours[i]);
 		result.push_back(rect);
@@ -123,3 +132,15 @@ void videoTool::RemoveSmallRegion2(Mat& src, Mat& dst, int AreaLimit, int CheckM
 	}
 }
 
+void videoTool::onBi(Mat& src,Mat& dst) {
+	bilateralFilter(src, dst, bi_p, 2 * bi_p, bi_p / 2);
+}
+
+void videoTool::onEz(Mat& src, Mat& dst) {
+	if (src.channels() == 3)
+		cvtColor(src, dst, CV_BGR2GRAY);
+	else
+		dst = src.clone();
+	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
+	threshold(dst, dst, ez_p, 255, THRESH_BINARY);
+}

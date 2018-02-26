@@ -6,6 +6,7 @@
 #include "videoTool.h"
 #include "myLabel.h"
 #include "myDlg.h"
+#include "smthDlg.h"
 #include<opencv2\opencv.hpp>
 
 using namespace cv;
@@ -38,7 +39,7 @@ private:
 	QAction *openFileAction;
 	QAction *closeFileAction;
 	QAction *bgRemoveAction;
-	QAction *smothingAction;
+	QAction *smoothingAction;
 	QAction *demarcateAction;
 
 	
@@ -69,6 +70,12 @@ private:
 
 	//bgremove子窗口
 	myDlg *bgRemovingDlg;
+
+	//smooth子窗口
+	smthDlg *smoothingDlg;
+	bool startsmth;
+
+	//demarcate停靠窗口
 	myInputDlg *demarcateDlg;
 	QDockWidget *demarcateDock;
 	QVBoxLayout *input_layout;
@@ -77,6 +84,8 @@ private:
 	QPushButton *selected;
 	QPushButton *lenSubmit;
 	QWidget *detable, *mvtable;
+
+	
 
 	//函数
 	void fitcut();
@@ -111,4 +120,8 @@ protected slots:
 	void toggleSelect();
 	//void onSelectFinished();
 	void toggleLenSubmit();
+	void toggleSmooth();
+	void receiveP(int p);
+	void receiveE(int e);
+	void onSmthDestroyed();
 };
