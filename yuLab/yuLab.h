@@ -5,6 +5,8 @@
 #include "qtlibs.h"
 #include "videoTool.h"
 #include "myLabel.h"
+#include "myDlg.h"
+#include "smthDlg.h"
 #include<opencv2\opencv.hpp>
 
 using namespace cv;
@@ -35,6 +37,11 @@ private:
 	QMenu *fileMenu;
 	//菜单项
 	QAction *openFileAction;
+	QAction *closeFileAction;
+	QAction *bgRemoveAction;
+	QAction *smoothingAction;
+	QAction *demarcateAction;
+
 	
 	QImage *image;
 
@@ -43,7 +50,7 @@ private:
 	//QVideoWidget *vp;
 	//QWidget *tab;
 	myLabel *ImageLabel;
-	QSlider *positionSlider;
+	QSlider *positionSlider;	//视频进度条
 	bool m_isPressed,m_cap;
 	QPoint m_startPoint, m_endPoint;
 	int m_cutWidth, m_cutHeight;
@@ -56,28 +63,50 @@ private:
 	/*QGridLayout *RightLayout;
 	QLabel *TextLabel;*/
 	bool mstatus;   //播放状态
-	QTimer *timer;
-	int maxtimeV = 1000;  //进度条最大值
+	//QTimer *timer;
+	int maxV = 1000;  //进度条最大值
+	unsigned int selectLen;	//标定选择像素值
+	unsigned int inputLen;	//输入长度
 
+	//bgremove子窗口
+	myDlg *bgRemovingDlg;
+
+	//smooth子窗口
+	smthDlg *smoothingDlg;
+	bool startsmth;
+
+	//demarcate停靠窗口
+	myInputDlg *demarcateDlg;
+	QDockWidget *demarcateDock;
+	QVBoxLayout *input_layout;
+	QLabel *tip1, *tip2, *tip3, *tip4, *tip5;
+	QLineEdit *inputLenEdit;
+	QPushButton *selected;
+	QPushButton *lenSubmit;
+	QWidget *detable, *mvtable;
+
+	
 
 	//函数
 	void fitcut();
-
+	void startsilder();	//启动视频进度条
+	
 	
 
 signals:
 	void fileLoadSuccuss();
 	void startPro();
+	void updateSlider();	//更新进度条
 	
 	
 
 protected slots:
 	void ShowOpenFile();
 	void togglePlayback();  //控制播放暂停
-	//void onTimerOut();  //刷新进度条的值
-	//void sliderClicked();
-	//void sliderMove(); //进度条移动
-	//void sliderRelease();  //释放滑块
+	void onUpdating();  //刷新进度条的值
+	void sliderClicked();
+	void sliderMove(); //进度条移动
+	void sliderRelease();  //释放滑块
 	//鼠标操作
 	void onCutFinished();
 	//按钮控制
@@ -85,5 +114,14 @@ protected slots:
 	//视频处理
 	void toggleCut();	//截屏
 	void recoPro();
-	
+	void createRemovingWin();
+	void createDemarcatingWin();	
+	void toggleDemarcate();	//标定窗口
+	void toggleSelect();
+	//void onSelectFinished();
+	void toggleLenSubmit();
+	void toggleSmooth();
+	void receiveP(int p);
+	void receiveE(int e);
+	void onSmthDestroyed();
 };
