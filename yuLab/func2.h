@@ -16,11 +16,11 @@ using namespace cv;
 using namespace std;
 
 
-float getPointPath(pair<int, int>&a, pair<int, int>&b) {
-	return sqrtf(powf(a.first - b.first, 2) + powf(a.second - b.second,2));
+float getPointPath(Point&a, Point&b) {
+	return sqrtf(powf(a.x - b.x, 2) + powf(a.y - b.y,2));
 }
 
-void countDistance(vector<pair<int,int>>&input, vector<float>&output) {
+void countDistance(vector<Point>&input, vector<float>&output) {
 	int n = input.size();
 	if (output.size() < n || n == 0)
 		return;
@@ -39,20 +39,20 @@ void countSpeed(vector<float>&distance, vector<float>&speed,float time) {
 	}
 }
 
-void coutAngle(vector<pair<int, int>>&input,vector<float>&distance, vector<float>&output) {
+void coutAngle(vector<Point>&input,vector<float>&distance, vector<float>&output) {
 	int n = input.size();
 	if (output.size() < n || n == 0)
 		return;
-	vector<pair<float, float>>vecs(n);
+	vector<Point>vecs(n);
 	//vector<float>angle(n);
-	vecs[0].first = 0;
-	vecs[0].second = 0;
+	vecs[0].x = 0;
+	vecs[0].y = 0;
 	//angle[0] = 0;
 	output[0] = 0;
 	for (int i = 1; i < n; ++i) {
-		vecs[i].first = vecs[i-1].first-vecs[i].first;
-		vecs[i].second = vecs[i - 1].second - vecs[i].second;
-		output[i] = acosf((vecs[i - 1].first*vecs[i].first + vecs[i - 1].second*vecs[i].second) / (distance[i - 1] + distance[i]));
+		vecs[i].x = input[i-1].x-input[i].x;
+		vecs[i].y = input[i - 1].y - input[i].y;
+		output[i] = acosf((vecs[i - 1].x*vecs[i].x + vecs[i - 1].y*vecs[i].y) / (distance[i - 1] + distance[i]));
 	}
 }
 

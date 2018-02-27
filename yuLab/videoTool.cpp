@@ -144,3 +144,11 @@ void videoTool::onEz(Mat& src, Mat& dst) {
 	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
 	threshold(dst, dst, ez_p, 255, THRESH_BINARY);
 }
+
+void videoTool::countCentroid(vector<vector<Point>>&contours, vector<Point>&Centroid) {
+	vector<Moments>mu(contours.size());
+	for (int i = 0; i < contours.size(); ++i) {
+		mu[i] = moments(contours[i], false);
+		Centroid[i] = Point(int(mu[i].m10 / mu[i].m00), int(mu[i].m01 / mu[i].m00));
+	}
+}

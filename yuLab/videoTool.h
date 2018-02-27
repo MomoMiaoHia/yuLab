@@ -42,6 +42,7 @@ public:
 	void RemoveSmallRegion2(Mat& src, Mat& dst, int AreaLimit, int CheckMode);
 	void onBi(Mat& src, Mat& dst);
 	void onEz(Mat& src, Mat& dst);
+	void countCentroid(vector<vector<Point>>&contours, vector<Point>&Centroid);
 	
 };/**/
 
