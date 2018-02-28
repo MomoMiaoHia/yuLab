@@ -26,6 +26,7 @@ videoTool::videoTool(string VideoName) {
 		stop = false;
 		useMouse = true;
 		status = new vector<int>(100, 0);
+		havebg = false;
 	}
 }
 
@@ -93,13 +94,15 @@ void videoTool::onMouse(int event, int x, int y, int flags, void* param) {
 
 vector<Rect> videoTool::getRects(const Mat& _img) {
 	//确保为灰度图
-	Mat img = _img.clone(),rawRoi=_img.clone(),img_t;
+	Mat img = _img.clone(),rawRoi=_img.clone(),img_t=_img.clone();
+	if (havebg)
+		absdiff(img, background, img_t);
 	if (bi_p)
-		onBi(img,img_t);
+		onBi(img_t,img_t);
 	else
 		img_t = img.clone();
-	if (_img.channels() == 3)
-		cvtColor(_img, img_t, CV_BGR2GRAY);
+	if (img_t.channels() == 3)
+		cvtColor(img_t, img_t, CV_BGR2GRAY);
 	//absdiff(img1, background, img);
 	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
 	vector<Rect> result;
@@ -107,7 +110,7 @@ vector<Rect> videoTool::getRects(const Mat& _img) {
 	if (ez_p)
 		onEz(img_t, img_t);
 	else
-		threshold(img_t, img_t, 0, 255, THRESH_BINARY + THRESH_OTSU);
+		threshold(img_t, img_t, 0, 255, THRESH_BINARY_INV + THRESH_OTSU);
 	RemoveSmallRegion2(img_t, img_t, 100, 1);
 	vector<vector<Point> >contours;
 	findContours(img_t, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
@@ -133,7 +136,14 @@ void videoTool::RemoveSmallRegion2(Mat& src, Mat& dst, int AreaLimit, int CheckM
 }
 
 void videoTool::onBi(Mat& src,Mat& dst) {
-	bilateralFilter(src, dst, bi_p, 2 * bi_p, bi_p / 2);
+	//bilateralFilter(src, dst, bi_p, 2 * bi_p, bi_p / 2);
+	if (src.channels() == 3)
+		cvtColor(src, dst, CV_BGR2GRAY);
+	else
+		dst = src.clone();
+	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
+
+	threshold(dst, dst, bi_p, 255, THRESH_TOZERO);
 }
 
 void videoTool::onEz(Mat& src, Mat& dst) {
@@ -142,7 +152,7 @@ void videoTool::onEz(Mat& src, Mat& dst) {
 	else
 		dst = src.clone();
 	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
-	threshold(dst, dst, ez_p, 255, THRESH_BINARY);
+	threshold(dst, dst, ez_p, 255, THRESH_BINARY_INV);
 }
 
 void videoTool::countCentroid(vector<vector<Point>>&contours, vector<Point>&Centroid) {

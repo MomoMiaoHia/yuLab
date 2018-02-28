@@ -124,4 +124,5 @@ protected slots:
 	void receiveP(int p);
 	void receiveE(int e);
 	void onSmthDestroyed();
+	void receiveBg();
 };

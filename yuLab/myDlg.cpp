@@ -15,12 +15,12 @@ myDlg::myDlg(QWidget *parent)
 
 	selected = new QPushButton(tr("selected"));
 	cacelled = new QPushButton(tr("cacell"));
-	bg_slider = new QSlider(Qt::Horizontal);
+	//bg_slider = new QSlider(Qt::Horizontal);
 
-	bg = new Mat();
+	//bg = new Mat();
 
 	bg_layout->addWidget(bgLabel);
-	bg_layout->addWidget(bg_slider);
+	//bg_layout->addWidget(bg_slider);
 	bg_layout->addWidget(selected);
 	bg_layout->addWidget(cacelled);
 
@@ -38,8 +38,16 @@ myDlg::~myDlg()
 {
 }
 
+void myDlg::setData(Mat& img) {
+	bg = img.clone();
+	QImage background = QImage((const uchar*)(bg.data), bg.cols, bg.rows, bg.cols*bg.channels(), QImage::Format_RGB888);
+	bgLabel->setPixmap(QPixmap::fromImage(background));
+	bgLabel->resize(bgLabel->pixmap()->size());
+	bgLabel->show();
+}
+
 void myDlg::onSelected() {
-	emit(sendData(*bg));
+	emit sendbg();
 	accept();
 }
 

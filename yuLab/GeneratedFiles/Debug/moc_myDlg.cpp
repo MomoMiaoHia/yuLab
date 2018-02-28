@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_myDlg_t {
-    QByteArrayData data[7];
-    char stringdata0[45];
+    QByteArrayData data[5];
+    char stringdata0[36];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -30,16 +30,13 @@ struct qt_meta_stringdata_myDlg_t {
 static const qt_meta_stringdata_myDlg_t qt_meta_stringdata_myDlg = {
     {
 QT_MOC_LITERAL(0, 0, 5), // "myDlg"
-QT_MOC_LITERAL(1, 6, 8), // "sendData"
-QT_MOC_LITERAL(2, 15, 0), // ""
-QT_MOC_LITERAL(3, 16, 3), // "Mat"
-QT_MOC_LITERAL(4, 20, 2), // "bg"
-QT_MOC_LITERAL(5, 23, 10), // "onSelected"
-QT_MOC_LITERAL(6, 34, 10) // "onCacelled"
+QT_MOC_LITERAL(1, 6, 6), // "sendbg"
+QT_MOC_LITERAL(2, 13, 0), // ""
+QT_MOC_LITERAL(3, 14, 10), // "onSelected"
+QT_MOC_LITERAL(4, 25, 10) // "onCacelled"
 
     },
-    "myDlg\0sendData\0\0Mat\0bg\0onSelected\0"
-    "onCacelled"
+    "myDlg\0sendbg\0\0onSelected\0onCacelled"
 };
 #undef QT_MOC_LITERAL
 
@@ -57,14 +54,14 @@ static const uint qt_meta_data_myDlg[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   29,    2, 0x06 /* Public */,
+       1,    0,   29,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       5,    0,   32,    2, 0x09 /* Protected */,
-       6,    0,   33,    2, 0x09 /* Protected */,
+       3,    0,   30,    2, 0x09 /* Protected */,
+       4,    0,   31,    2, 0x09 /* Protected */,
 
  // signals: parameters
-    QMetaType::Void, 0x80000000 | 3,    4,
+    QMetaType::Void,
 
  // slots: parameters
     QMetaType::Void,
@@ -79,7 +76,7 @@ void myDlg::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void 
         myDlg *_t = static_cast<myDlg *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->sendData((*reinterpret_cast< Mat(*)>(_a[1]))); break;
+        case 0: _t->sendbg(); break;
         case 1: _t->onSelected(); break;
         case 2: _t->onCacelled(); break;
         default: ;
@@ -88,13 +85,14 @@ void myDlg::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void 
         int *result = reinterpret_cast<int *>(_a[0]);
         void **func = reinterpret_cast<void **>(_a[1]);
         {
-            typedef void (myDlg::*_t)(Mat );
-            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&myDlg::sendData)) {
+            typedef void (myDlg::*_t)();
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&myDlg::sendbg)) {
                 *result = 0;
                 return;
             }
         }
     }
+    Q_UNUSED(_a);
 }
 
 const QMetaObject myDlg::staticMetaObject = {
@@ -134,9 +132,8 @@ int myDlg::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void myDlg::sendData(Mat _t1)
+void myDlg::sendbg()
 {
-    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
-    QMetaObject::activate(this, &staticMetaObject, 0, _a);
+    QMetaObject::activate(this, &staticMetaObject, 0, Q_NULLPTR);
 }
 QT_END_MOC_NAMESPACE

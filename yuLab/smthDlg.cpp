@@ -85,14 +85,14 @@ void smthDlg::startSlider() {
 	p1->setText(QString::number(pbi, 10));
 	bi->setTickPosition(QSlider::TicksAbove);
 	connect(bi, SIGNAL(sliderPressed()), this, SLOT(sliderPressedp()));
-	connect(bi, SIGNAL(sliderMoved()), this, SLOT(sliderMovep()));
+	connect(bi, SIGNAL(sliderMoved(int)), this, SLOT(sliderMovep()));
 	connect(bi, SIGNAL(sliderReleased()), this, SLOT(sliderReleasep()));
 	ez->setMaximum(255);
 	ez->setSingleStep(1);
 	p2->setText(QString::number(pez, 10));
 	ez->setTickPosition(QSlider::TicksAbove);
 	connect(ez, SIGNAL(sliderPressed()), this, SLOT(sliderPressede()));
-	connect(ez, SIGNAL(sliderMoved()), this, SLOT(sliderMovee()));
+	connect(ez, SIGNAL(sliderMoved(int)), this, SLOT(sliderMovee()));
 	connect(ez, SIGNAL(sliderReleased()), this, SLOT(sliderReleasee()));
 }
 
@@ -132,8 +132,9 @@ void smthDlg::sliderReleasee() {
 	updateProssess();
 }
 
-void smthDlg::setData(Mat& img) {
+void smthDlg::setData(Mat& img,Mat& backg) {
 	raw = img.clone();
+	bg = backg.clone();
 	updateProssess();
 }
 
@@ -153,15 +154,16 @@ void smthDlg::updateImage(QImage& bi_img, QImage& ez_img) {
 }
 
 void smthDlg::updateProssess() {
-	Mat t_bi,bi_pic, ez_pic;
-	cvtColor(raw, t_bi, CV_BGR2RGB);
-	bilateralFilter(t_bi, bi_pic, pbi, 2 * pbi, pbi / 2);
-	ez_pic = bi_pic.clone();
-	if (ez_pic.channels() == 3)
-		cvtColor(ez_pic, ez_pic, CV_BGR2GRAY);
+	Mat t_pic,bi_pic, ez_pic;
+	absdiff(raw, bg, bi_pic);
+	//bilateralFilter(t_bi, bi_pic, pbi, 2 * pbi, pbi / 2);
+	if (bi_pic.channels() == 3)
+		cvtColor(bi_pic, bi_pic, CV_BGR2GRAY);
 	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
-	threshold(ez_pic, ez_pic, pez, 255, THRESH_BINARY);
-	QImage bi_img = QImage((const uchar*)(bi_pic.data), bi_pic.cols, bi_pic.rows, bi_pic.cols*bi_pic.channels(), QImage::Format_RGB888);
+	threshold(bi_pic, bi_pic, pbi, 255, THRESH_TOZERO);
+	ez_pic = bi_pic.clone();
+	threshold(ez_pic, ez_pic, pez, 255, THRESH_BINARY_INV);
+	QImage bi_img = QImage((const uchar*)(bi_pic.data), bi_pic.cols, bi_pic.rows, bi_pic.cols*ez_pic.channels(), QImage::Format_Indexed8);
 	QImage ez_img = QImage((const uchar*)(ez_pic.data), ez_pic.cols, ez_pic.rows, ez_pic.cols*ez_pic.channels(), QImage::Format_Indexed8);
 	updateImage(bi_img, ez_img);
 }

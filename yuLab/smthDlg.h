@@ -11,7 +11,7 @@ class smthDlg : public QDialog
 public:
 	smthDlg(QWidget *parent = 0);
 	~smthDlg();
-	void setData(Mat& img);
+	void setData(Mat& img,Mat& backg);
 	void getData(int& valueb, int& valuee);
 	void updateImage(QImage& bi_img, QImage& ez_img);
 
@@ -39,7 +39,7 @@ private:
 	QPushButton *set_e;
 	QSlider *bg_slider, *bi, *ez;//     ÂË²¨£¬¶þÖµ
 	int pbi, pez;
-	Mat raw;
+	Mat raw,bg;
 	QImage bi_img, ez_img;
 
 	void startSlider();

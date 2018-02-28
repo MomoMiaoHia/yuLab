@@ -29,6 +29,7 @@ public:
 	XiaDetect detect;	//虾死亡判定类
 	Mat currentFrame;
 	Mat firstFrame;
+	bool havebg;
 	Mat background;	//	前景
 	Mat rawRoi;	//原始图
 	//Mat ezRoi;	//二值图

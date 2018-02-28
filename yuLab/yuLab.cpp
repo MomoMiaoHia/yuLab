@@ -87,6 +87,7 @@ void yuLab::createActions() {
 	closeFileAction = new QAction(tr("close"), this);
 	bgRemoveAction = new QAction(tr("remove background"), this);
 	smoothingAction = new QAction(tr("smooth"), this);
+	smoothingAction->setDisabled(true);
 	demarcateAction = new QAction(tr("demarcate"), this);
 	//事件关联
 	connect(openFileAction, SIGNAL(triggered()), this, SLOT(ShowOpenFile()));
@@ -250,7 +251,7 @@ void yuLab::recoPro() {
 																		//vector<Rect> rects = getRects(currentFrame, box_rows, box_cols);    //各只虾的外接矩形框
 			if (startsmth){
 				smoothingDlg->getData(vtool->bi_p, vtool->ez_p);
-				smoothingDlg->setData(vtool->currentFrame);
+				smoothingDlg->setData(vtool->currentFrame,vtool->background);
 			}
 			vector<Rect> rects = vtool->getRects(vtool->currentFrame);
 			for (size_t i = 0; i < rects.size(); ++i) {
@@ -313,7 +314,10 @@ void yuLab::startsilder() {
 void yuLab::createRemovingWin() {
 	bgRemovingDlg = new myDlg(this);
 	bgRemovingDlg->setModal(true);
-	bgRemovingDlg->show();
+	bgRemovingDlg->setData(vtool->currentFrame);
+	bgRemovingDlg->show();	
+	vtool->background = vtool->currentFrame;
+	connect(bgRemovingDlg, SIGNAL(sendbg()), this, SLOT(receiveBg()));
 }
 
 void yuLab::createDemarcatingWin() {
@@ -397,10 +401,10 @@ void yuLab::toggleSmooth() {
 	smoothingDlg = new smthDlg(this);
 	smoothingDlg->setModal(false);
 	startsmth = true;
-	smoothingDlg->setData(vtool->currentFrame);
+	smoothingDlg->setData(vtool->currentFrame,vtool->background);
 	smoothingDlg->show();
-	connect(smoothingDlg, SIGNAL(sendP(int p)), this, SLOT(receiveP(int p)));
-	connect(smoothingDlg, SIGNAL(sendE(int e)), this, SLOT(receiveE(int e)));
+	connect(smoothingDlg, SIGNAL(sendP(int)), this, SLOT(receiveP(int)));
+	connect(smoothingDlg, SIGNAL(sendE(int)), this, SLOT(receiveE(int)));
 	connect(smoothingDlg, SIGNAL(destroyed()), this, SLOT(onSmthDestroyed()));
 }
 
@@ -415,4 +419,9 @@ void yuLab::receiveE(int e) {
 
 void yuLab::onSmthDestroyed() {
 	startsmth = false;
+}
+
+void yuLab::receiveBg() {
+	vtool->havebg = true;
+	smoothingAction->setDisabled(false);
 }

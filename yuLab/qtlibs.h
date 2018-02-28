@@ -27,6 +27,7 @@
 #include <QDialog>
 #include <QSizePolicy>
 #include "myInputDlg.h"
+#include "myDlg.h"
 
 
 #endif // LIBS_H

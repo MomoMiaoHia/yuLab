@@ -11,9 +11,10 @@ class myDlg : public QDialog
 public:
 	myDlg(QWidget *parent = 0);
 	~myDlg();
+	void setData(Mat& img);
 
 signals:
-	void sendData(Mat bg);
+	void sendbg();
 
 protected slots:
 	void onSelected();
@@ -26,5 +27,5 @@ private:
 	QPushButton *selected;
 	QPushButton *cacelled;
 	QSlider *bg_slider;
-	Mat *bg;
+	Mat bg;
 };
