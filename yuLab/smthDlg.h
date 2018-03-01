@@ -13,15 +13,16 @@ public:
 	~smthDlg();
 	void setData(Mat& img,Mat& backg);
 	void getData(int& valueb, int& valuee);
+	void setPE(int p, int e);
 	void updateImage(QImage& bi_img, QImage& ez_img);
 
 signals:
-	void sendP(int p);
+	void sendP();
 	void sendE(int e);
 
 private slots:
 	void onSetP();
-	void onSetE();
+	void onCancelled();
 	void sliderPressedp();
 	void sliderMovep(); //进度条移动
 	void sliderReleasep();  //释放滑块
@@ -31,12 +32,12 @@ private slots:
 	void updateProssess();
 
 private:
-	QVBoxLayout *para1, *para2;
+	QVBoxLayout *para1, *para2, *bts;
 	QHBoxLayout *bg_layout,*label_layout;
 	QLabel *biLabel, *ezLabel, *c1, *p1, *c2, *p2;
 	VideoCapture *bg_cap;
 	QPushButton *set_p;
-	QPushButton *set_e;
+	QPushButton *cancelled;
 	QSlider *bg_slider, *bi, *ez;//     滤波，二值
 	int pbi, pez;
 	Mat raw,bg;

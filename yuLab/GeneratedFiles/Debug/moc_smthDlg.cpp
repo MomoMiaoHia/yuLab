@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_smthDlg_t {
-    QByteArrayData data[15];
-    char stringdata0[138];
+    QByteArrayData data[14];
+    char stringdata0[141];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,21 +32,20 @@ static const qt_meta_stringdata_smthDlg_t qt_meta_stringdata_smthDlg = {
 QT_MOC_LITERAL(0, 0, 7), // "smthDlg"
 QT_MOC_LITERAL(1, 8, 5), // "sendP"
 QT_MOC_LITERAL(2, 14, 0), // ""
-QT_MOC_LITERAL(3, 15, 1), // "p"
-QT_MOC_LITERAL(4, 17, 5), // "sendE"
-QT_MOC_LITERAL(5, 23, 1), // "e"
-QT_MOC_LITERAL(6, 25, 6), // "onSetP"
-QT_MOC_LITERAL(7, 32, 6), // "onSetE"
-QT_MOC_LITERAL(8, 39, 14), // "sliderPressedp"
-QT_MOC_LITERAL(9, 54, 11), // "sliderMovep"
-QT_MOC_LITERAL(10, 66, 14), // "sliderReleasep"
-QT_MOC_LITERAL(11, 81, 14), // "sliderPressede"
-QT_MOC_LITERAL(12, 96, 11), // "sliderMovee"
-QT_MOC_LITERAL(13, 108, 14), // "sliderReleasee"
-QT_MOC_LITERAL(14, 123, 14) // "updateProssess"
+QT_MOC_LITERAL(3, 15, 5), // "sendE"
+QT_MOC_LITERAL(4, 21, 1), // "e"
+QT_MOC_LITERAL(5, 23, 6), // "onSetP"
+QT_MOC_LITERAL(6, 30, 11), // "onCancelled"
+QT_MOC_LITERAL(7, 42, 14), // "sliderPressedp"
+QT_MOC_LITERAL(8, 57, 11), // "sliderMovep"
+QT_MOC_LITERAL(9, 69, 14), // "sliderReleasep"
+QT_MOC_LITERAL(10, 84, 14), // "sliderPressede"
+QT_MOC_LITERAL(11, 99, 11), // "sliderMovee"
+QT_MOC_LITERAL(12, 111, 14), // "sliderReleasee"
+QT_MOC_LITERAL(13, 126, 14) // "updateProssess"
 
     },
-    "smthDlg\0sendP\0\0p\0sendE\0e\0onSetP\0onSetE\0"
+    "smthDlg\0sendP\0\0sendE\0e\0onSetP\0onCancelled\0"
     "sliderPressedp\0sliderMovep\0sliderReleasep\0"
     "sliderPressede\0sliderMovee\0sliderReleasee\0"
     "updateProssess"
@@ -67,23 +66,23 @@ static const uint qt_meta_data_smthDlg[] = {
        2,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   69,    2, 0x06 /* Public */,
-       4,    1,   72,    2, 0x06 /* Public */,
+       1,    0,   69,    2, 0x06 /* Public */,
+       3,    1,   70,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       6,    0,   75,    2, 0x08 /* Private */,
-       7,    0,   76,    2, 0x08 /* Private */,
-       8,    0,   77,    2, 0x08 /* Private */,
-       9,    0,   78,    2, 0x08 /* Private */,
-      10,    0,   79,    2, 0x08 /* Private */,
-      11,    0,   80,    2, 0x08 /* Private */,
-      12,    0,   81,    2, 0x08 /* Private */,
-      13,    0,   82,    2, 0x08 /* Private */,
-      14,    0,   83,    2, 0x08 /* Private */,
+       5,    0,   73,    2, 0x08 /* Private */,
+       6,    0,   74,    2, 0x08 /* Private */,
+       7,    0,   75,    2, 0x08 /* Private */,
+       8,    0,   76,    2, 0x08 /* Private */,
+       9,    0,   77,    2, 0x08 /* Private */,
+      10,    0,   78,    2, 0x08 /* Private */,
+      11,    0,   79,    2, 0x08 /* Private */,
+      12,    0,   80,    2, 0x08 /* Private */,
+      13,    0,   81,    2, 0x08 /* Private */,
 
  // signals: parameters
-    QMetaType::Void, QMetaType::Int,    3,
-    QMetaType::Void, QMetaType::Int,    5,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    4,
 
  // slots: parameters
     QMetaType::Void,
@@ -105,10 +104,10 @@ void smthDlg::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         smthDlg *_t = static_cast<smthDlg *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->sendP((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 0: _t->sendP(); break;
         case 1: _t->sendE((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 2: _t->onSetP(); break;
-        case 3: _t->onSetE(); break;
+        case 3: _t->onCancelled(); break;
         case 4: _t->sliderPressedp(); break;
         case 5: _t->sliderMovep(); break;
         case 6: _t->sliderReleasep(); break;
@@ -122,7 +121,7 @@ void smthDlg::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         int *result = reinterpret_cast<int *>(_a[0]);
         void **func = reinterpret_cast<void **>(_a[1]);
         {
-            typedef void (smthDlg::*_t)(int );
+            typedef void (smthDlg::*_t)();
             if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&smthDlg::sendP)) {
                 *result = 0;
                 return;
@@ -175,10 +174,9 @@ int smthDlg::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void smthDlg::sendP(int _t1)
+void smthDlg::sendP()
 {
-    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
-    QMetaObject::activate(this, &staticMetaObject, 0, _a);
+    QMetaObject::activate(this, &staticMetaObject, 0, Q_NULLPTR);
 }
 
 // SIGNAL 1

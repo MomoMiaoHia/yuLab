@@ -2,6 +2,9 @@
 #include "yuLab.h"
 #include "oplibs.h"
 #include "qtlibs.h"
+#include "func2.h"
+#include <iostream>
+#include <fstream>
 #include <QWidget>
 #include <QFile>
 #include <QFileDialog>
@@ -34,6 +37,8 @@ yuLab::yuLab(QWidget *parent)
 	LeftLayout->addWidget(ImageLabel);
 	//vp->setAspectRatioMode(Qt::IgnoreAspectRatio);
 	mstatus = false;
+	startDetect = false;
+	isCalculating = false;
 	LeftLayout->addWidget(positionSlider);
 	LeftLayout->addStretch();
 	positionSlider->setEnabled(false);
@@ -46,13 +51,16 @@ yuLab::yuLab(QWidget *parent)
 	StPa = new QPushButton(tr("Play"));
 	Stop = new QPushButton(tr("Stop"));
 	Pic_cut = new QPushButton(tr("Cut"));
+	Start_Calculate = new QPushButton(tr("Calculate"));
 	StPa->setEnabled(false);
+	Start_Calculate->setEnabled(false);
 	//Stop->setEnabled(false);
 	//Pic_cut->setEnabled(false);
 	BottomLayout->addStretch();
 	BottomLayout->addWidget(StPa);
 	BottomLayout->addWidget(Stop);
 	BottomLayout->addWidget(Pic_cut);
+	BottomLayout->addWidget(Start_Calculate);
 	BottomLayout->addStretch();
 	/**右侧**/
 	/* RightLayout=new QGridLayout();
@@ -84,6 +92,7 @@ yuLab::yuLab(QWidget *parent)
 
 void yuLab::createActions() {
 	openFileAction = new QAction(tr("open"), this);
+	saveFileAction = new QAction(tr("save"), this);
 	closeFileAction = new QAction(tr("close"), this);
 	bgRemoveAction = new QAction(tr("remove background"), this);
 	smoothingAction = new QAction(tr("smooth"), this);
@@ -91,6 +100,7 @@ void yuLab::createActions() {
 	demarcateAction = new QAction(tr("demarcate"), this);
 	//事件关联
 	connect(openFileAction, SIGNAL(triggered()), this, SLOT(ShowOpenFile()));
+	connect(saveFileAction, SIGNAL(triggered()), this, SLOT(saveFile()));
 	connect(bgRemoveAction, SIGNAL(triggered()), this, SLOT(createRemovingWin()));
 	//nnect(demarcateAction, SIGNAL(triggered()), this, SLOT(createDemarcatingWin()));
 	connect(demarcateAction, SIGNAL(triggered()), this, SLOT(toggleDemarcate()));
@@ -102,6 +112,7 @@ void yuLab::createActions() {
 	connect(positionSlider, SIGNAL(sliderReleased()), this, SLOT(sliderRelease()));
 	connect(Stop, SIGNAL(clicked()), this, SLOT(toggleStop()));
 	connect(Pic_cut, SIGNAL(clicked()), this, SLOT(toggleCut()));
+	connect(Start_Calculate, SIGNAL(clicked()), this, SLOT(toggleCalculate()));
 	connect(ImageLabel, SIGNAL(cutFinished()), this, SLOT(onCutFinished()));
 	//connect(this, SIGNAL(smthDlg::closeWin()), this, SLOT(finishSmth()));
 	connect(this, SIGNAL(startPro()), this, SLOT(recoPro()));
@@ -112,6 +123,7 @@ void yuLab::createMenus() {
 	//fileMenus
 	fileMenu = menuBar()->addMenu(tr("file"));
 	fileMenu->addAction(openFileAction);
+	fileMenu->addAction(saveFileAction);
 	fileMenu->addAction(closeFileAction);
 	menuBar()->addAction(bgRemoveAction);
 	menuBar()->addAction(smoothingAction);
@@ -231,10 +243,11 @@ void yuLab::recoPro() {
 	//if (vtool->stop)
 	//	return;
 	//vtool->background = vtool->background(vtool->initRect).clone();
-	while (!vtool->stop) {     //一直循环
+	while (!vtool->stop&&positionSlider->value()<vtool->totalframe_n) {     //一直循环
 		if (!vtool->pause&&!vtool->isupdate) {     //如果不暂停也不拖动进度条
 						  //long long t0 = getTickCount();
 			vtool->capture >> vtool->currentFrame;         //读入一帧
+			vtool->t_tick = vtool->capture.get(CV_CAP_PROP_POS_MSEC);
 			if (!vtool->currentFrame.data)
 				return;
 			++vtool->counts;
@@ -254,7 +267,13 @@ void yuLab::recoPro() {
 				smoothingDlg->setData(vtool->currentFrame,vtool->background);
 			}
 			vector<Rect> rects = vtool->getRects(vtool->currentFrame);
-			for (size_t i = 0; i < rects.size(); ++i) {
+			if(startDetect){
+			for (size_t i = 0; i < rects.size()&&i<1; ++i) {
+				//计算数据
+				if (isCalculating) {
+					vtool->countCenter(rects, vtool->xia_centers);
+					vtool->ticks.push_back(vtool->t_tick);
+				}
 				if (rects[i].area() == 0)
 					continue;
 				//cout << currentFrame(rects[i]).channels() << endl;
@@ -273,8 +292,10 @@ void yuLab::recoPro() {
 				rectangle(vtool->currentFrame, rects[i], Scalar(0, 0, 255), 1);   //画出虾的外接矩形框
 
 			}
+			}
 			//imshow(WIN1, currentFrame);
 			display(vtool->currentFrame);/**/
+			vtool->capture.set(CV_CAP_PROP_POS_MSEC, vtool->t_tick + 500);
 		}
 		//waitKey(1);
 		//char ch = waitKey(1);
@@ -387,13 +408,14 @@ void yuLab::toggleLenSubmit() {
 	QString tlen = inputLenEdit->text();
 	bool ok;
 	if (tlen.isEmpty()) {
-		inputLen = ImageLabel->width();
-		tip3->setText(QString::number(inputLen,10));
+		inputLen = 1;
+		tip3->setText(tr("1"));
 	}
 	else {
-		inputLen = tlen.toInt(&ok);
+		inputLen = tlen.toFloat(&ok);
 		tip3->setText(tlen);
 	}
+	vtool->lenthRatio = inputLen / selectLen;
 
 }
 
@@ -403,19 +425,23 @@ void yuLab::toggleSmooth() {
 	startsmth = true;
 	smoothingDlg->setData(vtool->currentFrame,vtool->background);
 	smoothingDlg->show();
-	connect(smoothingDlg, SIGNAL(sendP(int)), this, SLOT(receiveP(int)));
-	connect(smoothingDlg, SIGNAL(sendE(int)), this, SLOT(receiveE(int)));
+	connect(smoothingDlg, SIGNAL(sendP()), this, SLOT(receiveP()));
+	//connect(smoothingDlg, SIGNAL(sendE(int)), this, SLOT(receiveE(int)));
 	connect(smoothingDlg, SIGNAL(destroyed()), this, SLOT(onSmthDestroyed()));
 }
 
 
-void yuLab::receiveP(int p) {
-	vtool->bi_p = p;
+void yuLab::receiveP() {
+	//startsmth = false;
+	smoothingDlg->getData(vtool->bi_p, vtool->ez_p);
+	startDetect = true;
+	Start_Calculate->setEnabled(true);
+	//smoothingDlg->close();
 }
 
-void yuLab::receiveE(int e) {
+/*void yuLab::receiveE(int e) {
 	vtool->ez_p = e;
-}
+}*/
 
 void yuLab::onSmthDestroyed() {
 	startsmth = false;
@@ -424,4 +450,52 @@ void yuLab::onSmthDestroyed() {
 void yuLab::receiveBg() {
 	vtool->havebg = true;
 	smoothingAction->setDisabled(false);
+}
+
+void yuLab::toggleCalculate() {
+	isCalculating = !isCalculating;
+	if (isCalculating)
+		Start_Calculate->setText(tr("Stop calculate"));
+	else
+		Start_Calculate->setText(tr("Calculate"));
+}
+
+void yuLab::saveFile() {
+	vector<float>t_journey,t_speed,t_acspeed,t_angle;
+	//vector<Point2f>t_centers;
+	string distance_name, speed_name, acspeed_name, angle_name,ts_name;
+	Point2f t;
+	float time = 1 / vtool->fps;
+	int n = vtool->xia_centers.size();
+	/*for (int i = 0; i < n; ++n){
+		t = Point2f(ratioChange(vtool->xia_centers[i].x, vtool->lenthRatio), ratioChange(vtool->xia_centers[i].y, vtool->lenthRatio));
+		t_centers.push_back(t);
+	}*/
+	countDistance(vtool->xia_centers, t_journey);
+	countSpeed(t_journey, t_speed, time);
+	countSpeed(t_speed, t_acspeed, time);
+	coutAngle(vtool->xia_centers, t_journey, t_angle);
+	distance_name = videoName + "_distance.txt";
+	speed_name = videoName + "_speed.txt";
+	acspeed_name = videoName + "_acspeed.txt";
+	angle_name = videoName + "_angle.txt";
+	ts_name = videoName + "time.txt";
+	ofstream ts(ts_name, ios::_Noreplace);
+	ofstream dis(distance_name, ios::_Noreplace);
+	ofstream sp(speed_name, ios::_Noreplace);
+	ofstream acsp(acspeed_name, ios::_Noreplace);
+	ofstream ag(angle_name, ios::_Noreplace);
+	for (int i = 0; i < n; ++i) {
+		ts << setprecision(5) << time*i << endl;
+		dis << setprecision(5) << t_journey[i] * vtool->lenthRatio << endl;
+		sp << setprecision(5) << t_speed[i] * vtool->lenthRatio << endl;
+		acsp << setprecision(5) << t_acspeed[i] * vtool->lenthRatio * vtool->lenthRatio << endl;
+		ag << setprecision(5) << t_angle[i] << endl;
+	}
+	ts.close();
+	dis.close();
+	sp.close();
+	acsp.close();
+	ag.close();/**/
+	return;
 }

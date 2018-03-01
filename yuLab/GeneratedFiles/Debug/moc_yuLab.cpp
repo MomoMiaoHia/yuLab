@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_yuLab_t {
-    QByteArrayData data[27];
-    char stringdata0[311];
+    QByteArrayData data[26];
+    char stringdata0[323];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,37 +36,36 @@ QT_MOC_LITERAL(3, 23, 8), // "startPro"
 QT_MOC_LITERAL(4, 32, 12), // "updateSlider"
 QT_MOC_LITERAL(5, 45, 12), // "ShowOpenFile"
 QT_MOC_LITERAL(6, 58, 14), // "togglePlayback"
-QT_MOC_LITERAL(7, 73, 10), // "onUpdating"
-QT_MOC_LITERAL(8, 84, 13), // "sliderClicked"
-QT_MOC_LITERAL(9, 98, 10), // "sliderMove"
-QT_MOC_LITERAL(10, 109, 13), // "sliderRelease"
-QT_MOC_LITERAL(11, 123, 13), // "onCutFinished"
-QT_MOC_LITERAL(12, 137, 10), // "toggleStop"
-QT_MOC_LITERAL(13, 148, 9), // "toggleCut"
-QT_MOC_LITERAL(14, 158, 7), // "recoPro"
-QT_MOC_LITERAL(15, 166, 17), // "createRemovingWin"
-QT_MOC_LITERAL(16, 184, 20), // "createDemarcatingWin"
-QT_MOC_LITERAL(17, 205, 15), // "toggleDemarcate"
-QT_MOC_LITERAL(18, 221, 12), // "toggleSelect"
-QT_MOC_LITERAL(19, 234, 15), // "toggleLenSubmit"
-QT_MOC_LITERAL(20, 250, 12), // "toggleSmooth"
-QT_MOC_LITERAL(21, 263, 8), // "receiveP"
-QT_MOC_LITERAL(22, 272, 1), // "p"
-QT_MOC_LITERAL(23, 274, 8), // "receiveE"
-QT_MOC_LITERAL(24, 283, 1), // "e"
-QT_MOC_LITERAL(25, 285, 15), // "onSmthDestroyed"
-QT_MOC_LITERAL(26, 301, 9) // "receiveBg"
+QT_MOC_LITERAL(7, 73, 15), // "toggleCalculate"
+QT_MOC_LITERAL(8, 89, 10), // "onUpdating"
+QT_MOC_LITERAL(9, 100, 13), // "sliderClicked"
+QT_MOC_LITERAL(10, 114, 10), // "sliderMove"
+QT_MOC_LITERAL(11, 125, 13), // "sliderRelease"
+QT_MOC_LITERAL(12, 139, 13), // "onCutFinished"
+QT_MOC_LITERAL(13, 153, 10), // "toggleStop"
+QT_MOC_LITERAL(14, 164, 9), // "toggleCut"
+QT_MOC_LITERAL(15, 174, 7), // "recoPro"
+QT_MOC_LITERAL(16, 182, 17), // "createRemovingWin"
+QT_MOC_LITERAL(17, 200, 20), // "createDemarcatingWin"
+QT_MOC_LITERAL(18, 221, 15), // "toggleDemarcate"
+QT_MOC_LITERAL(19, 237, 12), // "toggleSelect"
+QT_MOC_LITERAL(20, 250, 15), // "toggleLenSubmit"
+QT_MOC_LITERAL(21, 266, 12), // "toggleSmooth"
+QT_MOC_LITERAL(22, 279, 8), // "receiveP"
+QT_MOC_LITERAL(23, 288, 15), // "onSmthDestroyed"
+QT_MOC_LITERAL(24, 304, 9), // "receiveBg"
+QT_MOC_LITERAL(25, 314, 8) // "saveFile"
 
     },
     "yuLab\0fileLoadSuccuss\0\0startPro\0"
     "updateSlider\0ShowOpenFile\0togglePlayback\0"
-    "onUpdating\0sliderClicked\0sliderMove\0"
-    "sliderRelease\0onCutFinished\0toggleStop\0"
-    "toggleCut\0recoPro\0createRemovingWin\0"
-    "createDemarcatingWin\0toggleDemarcate\0"
-    "toggleSelect\0toggleLenSubmit\0toggleSmooth\0"
-    "receiveP\0p\0receiveE\0e\0onSmthDestroyed\0"
-    "receiveBg"
+    "toggleCalculate\0onUpdating\0sliderClicked\0"
+    "sliderMove\0sliderRelease\0onCutFinished\0"
+    "toggleStop\0toggleCut\0recoPro\0"
+    "createRemovingWin\0createDemarcatingWin\0"
+    "toggleDemarcate\0toggleSelect\0"
+    "toggleLenSubmit\0toggleSmooth\0receiveP\0"
+    "onSmthDestroyed\0receiveBg\0saveFile"
 };
 #undef QT_MOC_LITERAL
 
@@ -76,7 +75,7 @@ static const uint qt_meta_data_yuLab[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      23,   14, // methods
+      24,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -84,31 +83,32 @@ static const uint qt_meta_data_yuLab[] = {
        3,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,  129,    2, 0x06 /* Public */,
-       3,    0,  130,    2, 0x06 /* Public */,
-       4,    0,  131,    2, 0x06 /* Public */,
+       1,    0,  134,    2, 0x06 /* Public */,
+       3,    0,  135,    2, 0x06 /* Public */,
+       4,    0,  136,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       5,    0,  132,    2, 0x09 /* Protected */,
-       6,    0,  133,    2, 0x09 /* Protected */,
-       7,    0,  134,    2, 0x09 /* Protected */,
-       8,    0,  135,    2, 0x09 /* Protected */,
-       9,    0,  136,    2, 0x09 /* Protected */,
-      10,    0,  137,    2, 0x09 /* Protected */,
-      11,    0,  138,    2, 0x09 /* Protected */,
-      12,    0,  139,    2, 0x09 /* Protected */,
-      13,    0,  140,    2, 0x09 /* Protected */,
-      14,    0,  141,    2, 0x09 /* Protected */,
-      15,    0,  142,    2, 0x09 /* Protected */,
-      16,    0,  143,    2, 0x09 /* Protected */,
-      17,    0,  144,    2, 0x09 /* Protected */,
-      18,    0,  145,    2, 0x09 /* Protected */,
-      19,    0,  146,    2, 0x09 /* Protected */,
-      20,    0,  147,    2, 0x09 /* Protected */,
-      21,    1,  148,    2, 0x09 /* Protected */,
-      23,    1,  151,    2, 0x09 /* Protected */,
-      25,    0,  154,    2, 0x09 /* Protected */,
-      26,    0,  155,    2, 0x09 /* Protected */,
+       5,    0,  137,    2, 0x09 /* Protected */,
+       6,    0,  138,    2, 0x09 /* Protected */,
+       7,    0,  139,    2, 0x09 /* Protected */,
+       8,    0,  140,    2, 0x09 /* Protected */,
+       9,    0,  141,    2, 0x09 /* Protected */,
+      10,    0,  142,    2, 0x09 /* Protected */,
+      11,    0,  143,    2, 0x09 /* Protected */,
+      12,    0,  144,    2, 0x09 /* Protected */,
+      13,    0,  145,    2, 0x09 /* Protected */,
+      14,    0,  146,    2, 0x09 /* Protected */,
+      15,    0,  147,    2, 0x09 /* Protected */,
+      16,    0,  148,    2, 0x09 /* Protected */,
+      17,    0,  149,    2, 0x09 /* Protected */,
+      18,    0,  150,    2, 0x09 /* Protected */,
+      19,    0,  151,    2, 0x09 /* Protected */,
+      20,    0,  152,    2, 0x09 /* Protected */,
+      21,    0,  153,    2, 0x09 /* Protected */,
+      22,    0,  154,    2, 0x09 /* Protected */,
+      23,    0,  155,    2, 0x09 /* Protected */,
+      24,    0,  156,    2, 0x09 /* Protected */,
+      25,    0,  157,    2, 0x09 /* Protected */,
 
  // signals: parameters
     QMetaType::Void,
@@ -132,8 +132,9 @@ static const uint qt_meta_data_yuLab[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,   22,
-    QMetaType::Void, QMetaType::Int,   24,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
 
@@ -151,24 +152,25 @@ void yuLab::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void 
         case 2: _t->updateSlider(); break;
         case 3: _t->ShowOpenFile(); break;
         case 4: _t->togglePlayback(); break;
-        case 5: _t->onUpdating(); break;
-        case 6: _t->sliderClicked(); break;
-        case 7: _t->sliderMove(); break;
-        case 8: _t->sliderRelease(); break;
-        case 9: _t->onCutFinished(); break;
-        case 10: _t->toggleStop(); break;
-        case 11: _t->toggleCut(); break;
-        case 12: _t->recoPro(); break;
-        case 13: _t->createRemovingWin(); break;
-        case 14: _t->createDemarcatingWin(); break;
-        case 15: _t->toggleDemarcate(); break;
-        case 16: _t->toggleSelect(); break;
-        case 17: _t->toggleLenSubmit(); break;
-        case 18: _t->toggleSmooth(); break;
-        case 19: _t->receiveP((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 20: _t->receiveE((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 5: _t->toggleCalculate(); break;
+        case 6: _t->onUpdating(); break;
+        case 7: _t->sliderClicked(); break;
+        case 8: _t->sliderMove(); break;
+        case 9: _t->sliderRelease(); break;
+        case 10: _t->onCutFinished(); break;
+        case 11: _t->toggleStop(); break;
+        case 12: _t->toggleCut(); break;
+        case 13: _t->recoPro(); break;
+        case 14: _t->createRemovingWin(); break;
+        case 15: _t->createDemarcatingWin(); break;
+        case 16: _t->toggleDemarcate(); break;
+        case 17: _t->toggleSelect(); break;
+        case 18: _t->toggleLenSubmit(); break;
+        case 19: _t->toggleSmooth(); break;
+        case 20: _t->receiveP(); break;
         case 21: _t->onSmthDestroyed(); break;
         case 22: _t->receiveBg(); break;
+        case 23: _t->saveFile(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -196,6 +198,7 @@ void yuLab::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void 
             }
         }
     }
+    Q_UNUSED(_a);
 }
 
 const QMetaObject yuLab::staticMetaObject = {
@@ -223,13 +226,13 @@ int yuLab::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 23)
+        if (_id < 24)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 23;
+        _id -= 24;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 23)
+        if (_id < 24)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 23;
+        _id -= 24;
     }
     return _id;
 }

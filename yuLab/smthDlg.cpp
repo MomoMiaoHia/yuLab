@@ -11,6 +11,7 @@ smthDlg::smthDlg(QWidget *parent)
 	label_layout = new QHBoxLayout();
 	para1 = new QVBoxLayout();
 	para2 = new QVBoxLayout();
+	bts = new QVBoxLayout();
 
 	biLabel = new QLabel();
 	ezLabel = new QLabel();
@@ -25,7 +26,7 @@ smthDlg::smthDlg(QWidget *parent)
 
 
 	set_p = new QPushButton(tr("set"));
-	set_e = new QPushButton(tr("set"));
+	cancelled = new QPushButton(tr("cancelled"));
 	bg_slider = new QSlider(Qt::Horizontal);
 	bi = new QSlider(Qt::Horizontal);
 	ez = new QSlider(Qt::Horizontal);
@@ -39,16 +40,19 @@ smthDlg::smthDlg(QWidget *parent)
 	para1->addWidget(c1);
 	para1->addWidget(p1);
 	para1->addWidget(bi);
-	para1->addWidget(set_p);
 	bg_layout->addLayout(para1);
 	
 	para2->addWidget(ezLabel);
 	para2->addWidget(c2);
 	para2->addWidget(p2);
-	para2->addWidget(ez);
-	para2->addWidget(set_e);
+	para2->addWidget(ez);	
 	bg_layout->addLayout(para2);
-	
+
+	bts->addStretch();
+	bts->addWidget(set_p);
+	bts->addWidget(cancelled);
+	bts->addStretch();
+	bg_layout->addLayout(bts);
 	//bg_layout->addWidget(selected);
 	//bg_layout->addWidget(cacelled);
 
@@ -59,7 +63,7 @@ smthDlg::smthDlg(QWidget *parent)
 	startSlider();
 
 	connect(set_p, SIGNAL(clicked()), this, SLOT(onSetP()));
-	connect(set_e, SIGNAL(clicked()), this, SLOT(onSetE()));
+	connect(cancelled, SIGNAL(clicked()), this, SLOT(onCancelled()));
 
 }
 
@@ -70,18 +74,20 @@ smthDlg::~smthDlg()
 
 void smthDlg::onSetP() {
 	//emit(sendData(*bg));
+	
+	emit sendP();
 	//accept();
-	emit sendP(pbi);
 }
 
-void smthDlg::onSetE() {
-	//reject();
-	emit sendE(pez);
+void smthDlg::onCancelled() {
+	reject();
+	//emit sendE(pez);
 }
 
 void smthDlg::startSlider() {
 	bi->setMaximum(50);
 	bi->setSingleStep(1);
+	bi->setValue(pbi);
 	p1->setText(QString::number(pbi, 10));
 	bi->setTickPosition(QSlider::TicksAbove);
 	connect(bi, SIGNAL(sliderPressed()), this, SLOT(sliderPressedp()));
@@ -89,6 +95,7 @@ void smthDlg::startSlider() {
 	connect(bi, SIGNAL(sliderReleased()), this, SLOT(sliderReleasep()));
 	ez->setMaximum(255);
 	ez->setSingleStep(1);
+	ez->setValue(pez);
 	p2->setText(QString::number(pez, 10));
 	ez->setTickPosition(QSlider::TicksAbove);
 	connect(ez, SIGNAL(sliderPressed()), this, SLOT(sliderPressede()));
@@ -166,4 +173,9 @@ void smthDlg::updateProssess() {
 	QImage bi_img = QImage((const uchar*)(bi_pic.data), bi_pic.cols, bi_pic.rows, bi_pic.cols*ez_pic.channels(), QImage::Format_Indexed8);
 	QImage ez_img = QImage((const uchar*)(ez_pic.data), ez_pic.cols, ez_pic.rows, ez_pic.cols*ez_pic.channels(), QImage::Format_Indexed8);
 	updateImage(bi_img, ez_img);
+}
+
+void smthDlg::setPE(int p, int e) {
+	pbi = p;
+	pez = e;
 }

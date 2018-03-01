@@ -38,6 +38,7 @@ private:
 	//菜单项
 	QAction *openFileAction;
 	QAction *closeFileAction;
+	QAction *saveFileAction;
 	QAction *bgRemoveAction;
 	QAction *smoothingAction;
 	QAction *demarcateAction;
@@ -59,14 +60,17 @@ private:
 	QPushButton *StPa;
 	QPushButton *Stop;
 	QPushButton *Pic_cut;
+	QPushButton *Start_Calculate;
 	//rightlayout
 	/*QGridLayout *RightLayout;
 	QLabel *TextLabel;*/
 	bool mstatus;   //播放状态
+	bool startDetect;	//检测状态
+	bool isCalculating;	//计算数值状态
 	//QTimer *timer;
 	int maxV = 1000;  //进度条最大值
 	unsigned int selectLen;	//标定选择像素值
-	unsigned int inputLen;	//输入长度
+	float inputLen;	//输入长度
 
 	//bgremove子窗口
 	myDlg *bgRemovingDlg;
@@ -103,6 +107,7 @@ signals:
 protected slots:
 	void ShowOpenFile();
 	void togglePlayback();  //控制播放暂停
+	void toggleCalculate();	//计算数据
 	void onUpdating();  //刷新进度条的值
 	void sliderClicked();
 	void sliderMove(); //进度条移动
@@ -121,8 +126,9 @@ protected slots:
 	//void onSelectFinished();
 	void toggleLenSubmit();
 	void toggleSmooth();
-	void receiveP(int p);
-	void receiveE(int e);
+	void receiveP();
+	//void receiveE(int e);
 	void onSmthDestroyed();
 	void receiveBg();
+	void saveFile();
 };

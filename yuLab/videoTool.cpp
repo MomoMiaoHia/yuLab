@@ -18,10 +18,10 @@ videoTool::videoTool(string VideoName) {
 		isupdate = false;
 		fps = capture.get(CV_CAP_PROP_FPS);
 		pause = true;
-		totalframe_n = capture.get(CV_CAP_PROP_FRAME_COUNT);
+		totalframe_n = capture.get(CV_CAP_PROP_FRAME_COUNT)-1;
 		currentframe_n = 0;
 		counts = 0;
-		bi_p = 0;
+		bi_p = 30;
 		ez_p = 0;
 		stop = false;
 		useMouse = true;
@@ -111,13 +111,19 @@ vector<Rect> videoTool::getRects(const Mat& _img) {
 		onEz(img_t, img_t);
 	else
 		threshold(img_t, img_t, 0, 255, THRESH_BINARY_INV + THRESH_OTSU);
-	RemoveSmallRegion2(img_t, img_t, 100, 1);
+	
+	RemoveSmallRegion2(img_t, img_t, 100, 0);
+	bitwise_not(img_t, img_t);
 	vector<vector<Point> >contours;
 	findContours(img_t, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 	for (int i = 0;i < contours.size();++i) {
 		Rect rect = boundingRect(contours[i]);
-		result.push_back(rect);
+		if(judgeRect(rect))
+			result.push_back(rect);
 	}
+	sortRect(result);
+	/**/if(result.size())
+		updateBg(result);
 	//imshow(WIN2, img);
 	return result;
 }
@@ -160,5 +166,46 @@ void videoTool::countCentroid(vector<vector<Point>>&contours, vector<Point>&Cent
 	for (int i = 0; i < contours.size(); ++i) {
 		mu[i] = moments(contours[i], false);
 		Centroid[i] = Point(int(mu[i].m10 / mu[i].m00), int(mu[i].m01 / mu[i].m00));
+	}
+}
+
+void videoTool::countCenter(vector<Rect>& rects, vector<Point2f>&center) {
+	int n = rects.size();
+	for (int i = 0; i < n; ++i) {
+		center.push_back( Point2f(rects[i].x + 0.5*rects[i].width, rects[i].y + 0.5*rects[i].height));
+	}
+}
+
+bool videoTool::judgeRect(const Rect&rect) {
+	if (rect.width > 50 || rect.height > 50) {
+		return true;
+	}
+	return false;
+}
+
+void videoTool::updateBg(const vector<Rect>&rects) {
+	if (!havebg)
+		return;
+	int n = rects.size();
+	vector<Mat> tempImg(n);
+	for (int i = 0; i < n; ++i) {
+		background(rects[i]).copyTo(tempImg[i]);
+	}
+	background = currentFrame.clone();
+	for (int i = 0; i < n; ++i) {
+		tempImg[i].copyTo(background(rects[i]));
+	}
+}
+
+void videoTool::sortRect(vector<Rect>&Rects) {
+	int n = Rects.size();
+	if (n == 2) {
+		return;
+	}
+	for (int i = 0; i < n-1; ++i) {
+		for (int j = 1; j < n-i-1; ++j) {
+			if (Rects[i].area() < Rects[i + 1].area())
+				swap(Rects[i], Rects[i + 1]);
+		}
 	}
 }
