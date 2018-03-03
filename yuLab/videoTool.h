@@ -33,8 +33,11 @@ public:
 	XiaDetect detect;	//虾死亡判定类
 	Mat currentFrame;
 	Mat firstFrame;
-	bool havebg;
-	Mat background;	//	前景
+	bool havebg,haveTbg;
+	//int haveTbg;
+	Rect minRect;
+	Mat background;	//	背景
+	Mat trueBg;		//置信背景
 	Mat rawRoi;	//原始图
 	//计算相关数据
 	vector<Point2f> xia_centers;
@@ -49,15 +52,17 @@ public:
 	bool useMouse;
 	void init(VideoCapture& capture);
 	void onMouse(int event, int x, int y, int flags, void* param);
-	vector<Rect> getRects(const Mat& _img);
+	vector<RotatedRect> getRects(const Mat& _img);
 	void RemoveSmallRegion2(Mat& src, Mat& dst, int AreaLimit, int CheckMode);
 	void onBi(Mat& src, Mat& dst);
 	void onEz(Mat& src, Mat& dst);
 	void countCentroid(vector<vector<Point>>&contours, vector<Point>&Centroid);	//计算质心
 	void countCenter(vector<Rect>& rects, vector<Point2f>&center);	//计算中心
-	bool judgeRect(const Rect&rect);
-	void updateBg(const vector<Rect>&rects);
-	void sortRect(vector<Rect>&Rects);
+	bool judgeRect(const RotatedRect&rect);
+	void updateBg(const vector<RotatedRect>&rects);
+	void sortRect(vector<RotatedRect>&Rects);
+	//int maxMRect(vector<RotatedRect>& rects);
+	void correctRect(Rect& r);
 	
 };/**/
 

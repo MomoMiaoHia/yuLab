@@ -132,4 +132,5 @@ protected slots:
 	void onSmthDestroyed();
 	void receiveBg();
 	void saveFile();
+	void correctRect(Rect& r);
 };

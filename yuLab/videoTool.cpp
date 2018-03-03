@@ -27,6 +27,7 @@ videoTool::videoTool(string VideoName) {
 		useMouse = true;
 		status = new vector<int>(100, 0);
 		havebg = false;
+		haveTbg = false;
 	}
 }
 
@@ -92,7 +93,7 @@ void videoTool::onMouse(int event, int x, int y, int flags, void* param) {
 	}
 }
 
-vector<Rect> videoTool::getRects(const Mat& _img) {
+vector<RotatedRect> videoTool::getRects(const Mat& _img) {
 	//确保为灰度图
 	Mat img = _img.clone(),rawRoi=_img.clone(),img_t=_img.clone();
 	if (havebg){
@@ -107,7 +108,7 @@ vector<Rect> videoTool::getRects(const Mat& _img) {
 	//absdiff(img1, background, img);
 	
 	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
-	vector<Rect> result;
+	vector<RotatedRect> result;
 	//int kk = 0;
 	if (ez_p)
 		onEz(img_t, img_t);
@@ -119,12 +120,16 @@ vector<Rect> videoTool::getRects(const Mat& _img) {
 	vector<vector<Point> >contours;
 	findContours(img_t, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 	for (int i = 0;i < contours.size();++i) {
-		Rect rect = boundingRect(contours[i]);
-		if(judgeRect(rect))
-			result.push_back(rect);
+		//Rect rect = boundingRect(contours[i]);
+		RotatedRect mrect = minAreaRect(contours[i]);
+		if(judgeRect(mrect))
+			result.push_back(mrect);
 	}
 	sortRect(result);
-	/**/if(result.size())
+	//if(result.size())
+		//minRect=minAreaRect()
+	if (result.size()>1)
+	/*if(result.size()&&result[0].area()>200&&result[0].area()<1000)*/
 		updateBg(result);
 	//imshow(WIN2, img);
 	return result;
@@ -133,7 +138,7 @@ vector<Rect> videoTool::getRects(const Mat& _img) {
 void videoTool::RemoveSmallRegion2(Mat& src, Mat& dst, int AreaLimit, int CheckMode) {
 	//CheckMode:0代表去除黑区域，1代表去除白区域；
 	dst = src.clone();
-	vector<vector<Point> >contours(100);
+	vector<vector<Point> >contours;
 	findContours(dst.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 	for (int k = 0;k < contours.size();++k) {
 		if ((int)contourArea(contours[k], false) < AreaLimit) {
@@ -178,36 +183,79 @@ void videoTool::countCenter(vector<Rect>& rects, vector<Point2f>&center) {
 	}
 }
 
-bool videoTool::judgeRect(const Rect&rect) {
-	if (rect.width>20||rect.height>20) {
+bool videoTool::judgeRect(const RotatedRect&rect) {
+	if (rect.size.width>20||rect.size.height>20) {
 		return true;
 	}
 	return false;
 }
 
-void videoTool::updateBg(const vector<Rect>&rects) {
+void videoTool::updateBg(const vector<RotatedRect>&rects) {
 	if (!havebg)
 		return;
 	int n = rects.size();
+	Mat mask = Mat::zeros(background.size(), CV_8UC1);
+	Mat t_bg = background.clone();
+	//Mat temp(background.rows,background.cols,background.type());
+	//if (n == 1 && rects[0].area() > 200 && rects[0].area() < 1000) {
+
+	//}
 	vector<Mat> tempImg(n);
 	for (int i = 0; i < 1; ++i) {
-		background(rects[i]).copyTo(tempImg[i]);
+		Rect t_rect = rects[i].boundingRect();
+		correctRect(t_rect);
+		mask(t_rect).setTo(255);
+		background.copyTo(tempImg[i], mask);
+		t_bg = currentFrame.clone();
+		t_bg.setTo(0, mask);
+		background = t_bg + tempImg[i];
+		//t_bg(rects[i].boundingRect()).copyTo(tempImg[i]);
 	}
-	background = currentFrame.clone();
+	/*background = currentFrame.clone();
 	for (int i = 0; i < 1; ++i) {
-		tempImg[i].copyTo(background(rects[i]));
-	}
+		tempImg[i].copyTo(background(rects[i].boundingRect()));
+	}*/
 }
 
-void videoTool::sortRect(vector<Rect>&Rects) {
+void videoTool::sortRect(vector<RotatedRect>&Rects) {
 	int n = Rects.size();
-	if (n == 2) {
-		return;
-	}
 	for (int i = 0; i < n-1; ++i) {
-		for (int j = 1; j < n-i-1; ++j) {
-			if (Rects[i].area() < Rects[i + 1].area())
-				swap(Rects[i], Rects[i + 1]);
+		for (int j = 0; j < n-i-1; ++j) {
+			if (Rects[j].size.area() < Rects[j + 1].size.area())
+				swap(Rects[j], Rects[j + 1]);
 		}
 	}
+
+}
+
+/*int videoTool::maxMRect(vector<RotatedRect>& rects) {
+	int t = 0, n = rects.size();
+	float si=0;
+	if (!n)
+		return n;
+	for (int i = 0; i < n; ++i) {
+		if(rects[i].)
+	}
+
+	void yuLab::correctRect(Rect& r) {
+	if (r.x < 0)
+		r.x = 0;
+	if (r.x + r.width > vtool->initRect.width)
+		r.width = vtool->initRect.width - r.x;
+	if (r.y < 0)
+		r.y = 0;
+	if (r.y + r.height > vtool->initRect.height)
+		r.height = vtool->initRect.height - r.y;
+}
+}*/
+
+void videoTool::correctRect(Rect& r) {
+	if (r.x < 0)
+		r.x = 0;
+	if (r.x + r.width > initRect.width)
+		r.width = initRect.width - r.x;
+	if (r.y < 0)
+		r.y = 0;
+	if (r.y + r.height > initRect.height)
+		r.height = initRect.height - r.y;
 }

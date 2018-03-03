@@ -271,30 +271,34 @@ void yuLab::recoPro() {
 				smoothingDlg->getData(vtool->bi_p, vtool->ez_p);
 				smoothingDlg->setData(vtool->currentFrame,vtool->background);
 			}
-			vector<Rect> rects = vtool->getRects(vtool->currentFrame);
 			if(startDetect){
+				vector<RotatedRect> rects = vtool->getRects(vtool->currentFrame);
 			for (size_t i = 0; i < rects.size()&&i<1; ++i) {
 				//计算数据
-				if (rects[i].area() == 0)
+				Rect t_rect = rects[i].boundingRect();
+				correctRect(t_rect);
+				if (rects[i].size.area() == 0)
 					continue;
 				if (isCalculating) {
-					vtool->countCenter(rects, vtool->xia_centers);
+					//vtool->countCenter(rects, vtool->xia_centers);
+					vtool->xia_centers.push_back(rects[i].center);
 					vtool->ticks.push_back(vtool->t_tick);
 				}
 				//cout << currentFrame(rects[i]).channels() << endl;
-				int result = vtool->detect.judge(vtool->currentFrame(rects[i]).clone());      //用SVM判定该虾的姿势（死的还是活的）
+				int result = vtool->detect.judge(vtool->currentFrame(t_rect).clone());      //用SVM判定该虾的姿势（死的还是活的）
 				if (result == 1) {    //活着的
 					(*vtool->status)[i] = 0;
-					putText(vtool->currentFrame, "alive", rects[i].tl(), 1, 1, Scalar(0, 255, 0));
+					putText(vtool->currentFrame, "alive", t_rect.tl(), 1, 1, Scalar(0, 255, 0));
 				}
 				else {          //判定为死亡
 					(*vtool->status)[i]++;
 					if ((*vtool->status)[i] > vtool->dead_counts)
-						putText(vtool->currentFrame, "died", rects[i].tl(), 1, 1, Scalar(255, 255, 255));
+						putText(vtool->currentFrame, "died", t_rect.tl(), 1, 1, Scalar(255, 255, 255));
 					else
-						putText(vtool->currentFrame, "alive", rects[i].tl(), 1, 1, Scalar(0, 255, 0));
+						putText(vtool->currentFrame, "alive", t_rect.tl(), 1, 1, Scalar(0, 255, 0));
 				}
-				rectangle(vtool->currentFrame, rects[i], Scalar(0, 0, 255), 1);   //画出虾的外接矩形框
+				
+				rectangle(vtool->currentFrame, t_rect, Scalar(0, 0, 255), 1);   //画出虾的外接矩形框
 
 			}
 			}
@@ -483,11 +487,11 @@ void yuLab::saveFile() {
 	countSpeed(t_journey, t_speed, vtool->ticks);
 	countSpeed(t_speed, t_acspeed, vtool->ticks);
 	coutAngle(vtool->xia_centers, t_journey, t_angle);
-	distance_name = videoPath + "\\output\\" + videoName + "_2_distance.txt";
-	speed_name = videoPath + "\\output\\" + videoName + "_2_speed.txt";
-	acspeed_name = videoPath + "\\output\\" + videoName + "_2_acspeed.txt";
-	angle_name = videoPath + "\\output\\" + videoName + "_2_angle.txt";
-	ts_name = videoPath + "\\output\\" + videoName + "_2_time.txt";
+	distance_name = videoPath + "\\output\\" + videoName + "_1_distance.txt";
+	speed_name = videoPath + "\\output\\" + videoName + "_1_speed.txt";
+	acspeed_name = videoPath + "\\output\\" + videoName + "_1_acspeed.txt";
+	angle_name = videoPath + "\\output\\" + videoName + "_1_angle.txt";
+	ts_name = videoPath + "\\output\\" + videoName + "_1_time.txt";
 	ofstream ts(ts_name, ios::_Noreplace);
 	ofstream dis(distance_name, ios::_Noreplace);
 	ofstream sp(speed_name, ios::_Noreplace);
@@ -509,4 +513,15 @@ void yuLab::saveFile() {
 	acsp.close();
 	ag.close();/**/
 	return;
+}
+
+void yuLab::correctRect(Rect& r) {
+	if (r.x < 0)
+		r.x = 0;
+	if (r.x + r.width > vtool->initRect.width)
+		r.width = vtool->initRect.width - r.x;
+	if (r.y < 0)
+		r.y = 0;
+	if (r.y + r.height > vtool->initRect.height)
+		r.height = vtool->initRect.height - r.y;
 }
