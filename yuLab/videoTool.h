@@ -29,6 +29,7 @@ public:
 	int dead_counts;           //判定为死亡需要经过的帧数
 	float t_tick;
 	vector<float> ticks;	//时间
+	float timestep = 500;//时间间隔
 	XiaDetect detect;	//虾死亡判定类
 	Mat currentFrame;
 	Mat firstFrame;

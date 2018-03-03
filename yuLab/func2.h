@@ -33,12 +33,13 @@ void countDistance(vector<Point2f>&input, vector<float>&output) {
 	}
 }
 
-void countSpeed(vector<float>&distance, vector<float>&speed,float time) {
+void countSpeed(vector<float>&distance, vector<float>&speed,vector<float>& time) {
 	int n = distance.size();
 	if (n == 0)
 		return;
-	for (int i = 0; i < n; ++i) {
-		speed.push_back(distance[i] / time);
+	speed.push_back(0);
+	for (int i = 1; i < n; ++i) {
+		speed.push_back(distance[i] / (time[i]-time[i-1]));
 	}
 }
 
@@ -59,7 +60,7 @@ void coutAngle(vector<Point2f>&input,vector<float>&distance, vector<float>&outpu
 		if (distance[i] < 1e-9 || distance[i - 1] < 1e-9)
 			output.push_back(0);
 		else
-			output.push_back(acosf((vecs[i - 1].x*vecs[i].x + vecs[i - 1].y*vecs[i].y) / (distance[i - 1] * distance[i])));
+			output.push_back(acosf((vecs[i - 1].x*vecs[i].x + vecs[i - 1].y*vecs[i].y) / (distance[i - 1] * distance[i]))*57.32);
 	}
 }
 

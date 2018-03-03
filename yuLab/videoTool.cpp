@@ -95,8 +95,9 @@ void videoTool::onMouse(int event, int x, int y, int flags, void* param) {
 vector<Rect> videoTool::getRects(const Mat& _img) {
 	//确保为灰度图
 	Mat img = _img.clone(),rawRoi=_img.clone(),img_t=_img.clone();
-	if (havebg)
+	if (havebg){
 		absdiff(img, background, img_t);
+	}
 	if (bi_p)
 		onBi(img_t,img_t);
 	else
@@ -104,6 +105,7 @@ vector<Rect> videoTool::getRects(const Mat& _img) {
 	if (img_t.channels() == 3)
 		cvtColor(img_t, img_t, CV_BGR2GRAY);
 	//absdiff(img1, background, img);
+	
 	Mat ele = getStructuringElement(MORPH_RECT, Size(3, 3));
 	vector<Rect> result;
 	//int kk = 0;
@@ -111,8 +113,8 @@ vector<Rect> videoTool::getRects(const Mat& _img) {
 		onEz(img_t, img_t);
 	else
 		threshold(img_t, img_t, 0, 255, THRESH_BINARY_INV + THRESH_OTSU);
-	
-	RemoveSmallRegion2(img_t, img_t, 100, 0);
+	//bitwise_not(img_t, img_t);
+	RemoveSmallRegion2(img_t, img_t, 50, 1);
 	bitwise_not(img_t, img_t);
 	vector<vector<Point> >contours;
 	findContours(img_t, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
@@ -171,13 +173,13 @@ void videoTool::countCentroid(vector<vector<Point>>&contours, vector<Point>&Cent
 
 void videoTool::countCenter(vector<Rect>& rects, vector<Point2f>&center) {
 	int n = rects.size();
-	for (int i = 0; i < n; ++i) {
+	for (int i = 0; i < 1; ++i) {
 		center.push_back( Point2f(rects[i].x + 0.5*rects[i].width, rects[i].y + 0.5*rects[i].height));
 	}
 }
 
 bool videoTool::judgeRect(const Rect&rect) {
-	if (rect.width > 50 || rect.height > 50) {
+	if (rect.width>20||rect.height>20) {
 		return true;
 	}
 	return false;
@@ -188,11 +190,11 @@ void videoTool::updateBg(const vector<Rect>&rects) {
 		return;
 	int n = rects.size();
 	vector<Mat> tempImg(n);
-	for (int i = 0; i < n; ++i) {
+	for (int i = 0; i < 1; ++i) {
 		background(rects[i]).copyTo(tempImg[i]);
 	}
 	background = currentFrame.clone();
-	for (int i = 0; i < n; ++i) {
+	for (int i = 0; i < 1; ++i) {
 		tempImg[i].copyTo(background(rects[i]));
 	}
 }

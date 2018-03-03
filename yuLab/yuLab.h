@@ -19,7 +19,7 @@ public:
 	yuLab(QWidget *parent = Q_NULLPTR);
 
 	QString fileName;
-	string videoName;
+	string videoPath,videoName;
 	videoTool *vtool;
 
 	void createActions();   //创建动作
@@ -52,6 +52,7 @@ private:
 	//QWidget *tab;
 	myLabel *ImageLabel;
 	QSlider *positionSlider;	//视频进度条
+	QLabel *positionV;
 	bool m_isPressed,m_cap;
 	QPoint m_startPoint, m_endPoint;
 	int m_cutWidth, m_cutHeight;
@@ -69,7 +70,7 @@ private:
 	bool isCalculating;	//计算数值状态
 	//QTimer *timer;
 	int maxV = 1000;  //进度条最大值
-	unsigned int selectLen;	//标定选择像素值
+	float selectLen;	//标定选择像素值
 	float inputLen;	//输入长度
 
 	//bgremove子窗口

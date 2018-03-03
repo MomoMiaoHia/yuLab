@@ -27,8 +27,9 @@ int main(int argc, char *argv[])
 	int min_threshold = 1;       //超过died_min分钟连续保持死亡状态的虾，则判定为死亡
 	int dead_counts;           //判定为死亡需要经过的帧数
 	XiaDetect detect;	//虾死亡判定类
-	w.videoName = "E:\\lab\\data\\temprate\\20180301_081226_21.mp4";
-	w.vtool = new videoTool(w.videoName);
+	w.videoPath = "E:\\lab\\data\\temprate\\";
+	w.videoName = "20180302_110113_24.mp4";
+	w.vtool = new videoTool(w.videoPath+w.videoName);
 	if (w.vtool->capture.isOpened() == false) {
 		cerr << "Load Video Failed!\n";
 		return -1;

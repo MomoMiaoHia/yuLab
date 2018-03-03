@@ -14,6 +14,7 @@ public:
 	QPoint m_beginPoint, m_endPoint;
 	bool scalling;//Ëõ·Å
 	QRect selectedRect;
+	QLineF selectedLine;
 	bool startcut;
 	bool startdm;
 

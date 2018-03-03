@@ -27,6 +27,7 @@ yuLab::yuLab(QWidget *parent)
 	positionSlider = new QSlider(Qt::Horizontal);
 	/*timer = new QTimer();
 	timer->setInterval(1000); */  //1000ms刷新一次进度条
+	positionV = new QLabel();
 	image = new QImage();
 	//tab = new QWidget();
 	ImageLabel = new myLabel();
@@ -40,6 +41,7 @@ yuLab::yuLab(QWidget *parent)
 	startDetect = false;
 	isCalculating = false;
 	LeftLayout->addWidget(positionSlider);
+	LeftLayout->addWidget(positionV);
 	LeftLayout->addStretch();
 	positionSlider->setEnabled(false);
 	//LeftLayout->addWidget(ImageLabel);
@@ -136,6 +138,7 @@ void yuLab::fitcut() {
 		return;
 	ImageLabel->scalling = true;
 	vtool->initRect=Rect(ImageLabel->selectedRect.x(),ImageLabel->selectedRect.y(),ImageLabel->selectedRect.width(),ImageLabel->selectedRect.height());
+	vtool->currentFrame = vtool->firstFrame(vtool->initRect).clone();
 	//rectangle(vtool->firstFrame, vtool->initRect, Scalar(0, 0, 255), 1);
 	//display(vtool->firstFrame);
 }
@@ -220,8 +223,9 @@ void yuLab::display(Mat mat) {
 }
 
 void yuLab::onCutFinished() {
-	if(ImageLabel->startcut)
-		display(vtool->firstFrame);
+	//if(ImageLabel->startcut)
+	display(vtool->firstFrame);
+	togglePlayback();
 	startsilder();
 }
 
@@ -243,15 +247,16 @@ void yuLab::recoPro() {
 	//if (vtool->stop)
 	//	return;
 	//vtool->background = vtool->background(vtool->initRect).clone();
-	while (!vtool->stop&&positionSlider->value()<vtool->totalframe_n) {     //一直循环
+	while (!vtool->stop&&vtool->capture.get(CAP_PROP_POS_FRAMES)<vtool->totalframe_n) {     //一直循环
 		if (!vtool->pause&&!vtool->isupdate) {     //如果不暂停也不拖动进度条
 						  //long long t0 = getTickCount();
+			positionV->setText(QString::number(positionSlider->value(), 10));
 			vtool->capture >> vtool->currentFrame;         //读入一帧
 			vtool->t_tick = vtool->capture.get(CV_CAP_PROP_POS_MSEC);
 			if (!vtool->currentFrame.data)
 				return;
 			++vtool->counts;
-			++vtool->currentframe_n;emit(updateSlider());
+			vtool->currentframe_n=vtool->capture.get(CAP_PROP_POS_FRAMES);emit(updateSlider());
 			if (vtool->currentFrame.cols > 800 && vtool->currentFrame.rows > 600)
 				cv::resize(vtool->currentFrame, vtool->currentFrame, Size(), 0.65, 0.65);   //尺寸缩小成原来一半
 			//滤波
@@ -270,12 +275,12 @@ void yuLab::recoPro() {
 			if(startDetect){
 			for (size_t i = 0; i < rects.size()&&i<1; ++i) {
 				//计算数据
+				if (rects[i].area() == 0)
+					continue;
 				if (isCalculating) {
 					vtool->countCenter(rects, vtool->xia_centers);
 					vtool->ticks.push_back(vtool->t_tick);
 				}
-				if (rects[i].area() == 0)
-					continue;
 				//cout << currentFrame(rects[i]).channels() << endl;
 				int result = vtool->detect.judge(vtool->currentFrame(rects[i]).clone());      //用SVM判定该虾的姿势（死的还是活的）
 				if (result == 1) {    //活着的
@@ -295,7 +300,7 @@ void yuLab::recoPro() {
 			}
 			//imshow(WIN1, currentFrame);
 			display(vtool->currentFrame);/**/
-			vtool->capture.set(CV_CAP_PROP_POS_MSEC, vtool->t_tick + 500);
+			vtool->capture.set(CV_CAP_PROP_POS_MSEC, vtool->t_tick + vtool->timestep);
 		}
 		//waitKey(1);
 		//char ch = waitKey(1);
@@ -307,13 +312,15 @@ void yuLab::recoPro() {
 void yuLab::toggleCut() {
 	if (ImageLabel->startcut) {
 		ImageLabel->startcut = false;
-		vtool->pause = false;
+		togglePlayback();
+		//vtool->pause = false;
 		Pic_cut->setText(tr("Cut"));
-		StPa->setText(tr("Pause"));
+		//StPa->setText(tr("Pause"));
 		fitcut();
 		Pic_cut->setEnabled(false);
 		StPa->setEnabled(true);
 		vtool->stop = false;
+		display(vtool->currentFrame);
 		emit(startPro());
 	}
 	else {
@@ -328,7 +335,7 @@ void yuLab::startsilder() {
 	positionSlider->setMinimum(0);
 	positionSlider->setMaximum(vtool->totalframe_n);
 	positionSlider->setSingleStep((int)vtool->fps);
-	positionSlider->setValue(vtool->currentframe_n);
+	positionSlider->setValue(0);
 }
 
 
@@ -392,14 +399,14 @@ void yuLab::toggleDemarcate() {
 void yuLab::toggleSelect() {
 	if (ImageLabel->startdm) {
 		selected->setText("select");
-		selectLen = ImageLabel->selectedRect.width() > 1 ? ImageLabel->selectedRect.width() : 0;
-		ImageLabel->selectedRect = QRect::QRect(ImageLabel->m_beginPoint, ImageLabel->m_endPoint);
-		tip5->setText(QString::number(selectLen, 10));
+		selectLen = ImageLabel->selectedLine.length() > 1 ? ImageLabel->selectedLine.length() : 0;
+		//ImageLabel->selectedLine = QLineF::QLineF(ImageLabel->m_beginPoint, ImageLabel->m_endPoint);
+		tip5->setText(QString::number(selectLen,'g'));
 		ImageLabel->startdm = false;
 	}
 	else {
 		selected->setText("finish select");
-		ImageLabel->selectedRect = QRect::QRect(ImageLabel->m_beginPoint, ImageLabel->m_endPoint);
+		ImageLabel->selectedLine = QLineF::QLineF(ImageLabel->m_beginPoint, ImageLabel->m_endPoint);
 		ImageLabel->startdm = true;
 	}
 }
@@ -462,36 +469,40 @@ void yuLab::toggleCalculate() {
 
 void yuLab::saveFile() {
 	vector<float>t_journey,t_speed,t_acspeed,t_angle;
+	int changeAngle = 0;
 	//vector<Point2f>t_centers;
 	string distance_name, speed_name, acspeed_name, angle_name,ts_name;
 	Point2f t;
-	float time = 1 / vtool->fps;
+	//float time = vtool->timestep/1000;
 	int n = vtool->xia_centers.size();
 	/*for (int i = 0; i < n; ++n){
 		t = Point2f(ratioChange(vtool->xia_centers[i].x, vtool->lenthRatio), ratioChange(vtool->xia_centers[i].y, vtool->lenthRatio));
 		t_centers.push_back(t);
 	}*/
 	countDistance(vtool->xia_centers, t_journey);
-	countSpeed(t_journey, t_speed, time);
-	countSpeed(t_speed, t_acspeed, time);
+	countSpeed(t_journey, t_speed, vtool->ticks);
+	countSpeed(t_speed, t_acspeed, vtool->ticks);
 	coutAngle(vtool->xia_centers, t_journey, t_angle);
-	distance_name = videoName + "_distance.txt";
-	speed_name = videoName + "_speed.txt";
-	acspeed_name = videoName + "_acspeed.txt";
-	angle_name = videoName + "_angle.txt";
-	ts_name = videoName + "time.txt";
+	distance_name = videoPath + "\\output\\" + videoName + "_2_distance.txt";
+	speed_name = videoPath + "\\output\\" + videoName + "_2_speed.txt";
+	acspeed_name = videoPath + "\\output\\" + videoName + "_2_acspeed.txt";
+	angle_name = videoPath + "\\output\\" + videoName + "_2_angle.txt";
+	ts_name = videoPath + "\\output\\" + videoName + "_2_time.txt";
 	ofstream ts(ts_name, ios::_Noreplace);
 	ofstream dis(distance_name, ios::_Noreplace);
 	ofstream sp(speed_name, ios::_Noreplace);
 	ofstream acsp(acspeed_name, ios::_Noreplace);
 	ofstream ag(angle_name, ios::_Noreplace);
 	for (int i = 0; i < n; ++i) {
-		ts << setprecision(5) << time*i << endl;
+		ts << setprecision(5) << vtool->ticks[i]/1000<< endl;
 		dis << setprecision(5) << t_journey[i] * vtool->lenthRatio << endl;
 		sp << setprecision(5) << t_speed[i] * vtool->lenthRatio << endl;
-		acsp << setprecision(5) << t_acspeed[i] * vtool->lenthRatio * vtool->lenthRatio << endl;
-		ag << setprecision(5) << t_angle[i] << endl;
+		acsp << setprecision(5) << t_acspeed[i] * vtool->lenthRatio * vtool->lenthRatio * 1000 << endl;
+		if (t_angle[i] - 90 > 1e-9) {
+			++changeAngle;
+		}
 	}
+	ag << changeAngle << endl;
 	ts.close();
 	dis.close();
 	sp.close();

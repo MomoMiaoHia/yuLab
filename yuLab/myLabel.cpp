@@ -23,12 +23,16 @@ void myLabel::paintEvent(QPaintEvent *event) {
 	QLabel::paintEvent(event);
 	QPainter painter(this);
 	painter.setPen(QPen(Qt::blue, 2));
-	painter.drawRect(selectedRect);
+	if (startcut)
+		painter.drawRect(selectedRect);
+	else
+		painter.drawLine(selectedLine);
 }
 
 void myLabel::mouseReleaseEvent(QMouseEvent *event) {
 	m_endPoint = event->pos();
 	selectedRect = QRect::QRect(m_beginPoint, m_endPoint);
+	selectedLine = QLineF::QLineF(m_beginPoint, m_endPoint);
 	m_beginPoint = m_endPoint = QPoint(0, 0);
 	m_isMousePress = false;
 	if(startcut)
