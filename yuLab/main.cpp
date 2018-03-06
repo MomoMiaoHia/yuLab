@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	int dead_counts;           //判定为死亡需要经过的帧数
 	XiaDetect detect;	//虾死亡判定类
 	w.videoPath = "E:\\lab\\data\\temprate\\";
-	w.videoName = "20180302_145311_24.mp4";
+	w.videoName = "20180303_163206_28.mp4";
 	w.vtool = new videoTool(w.videoPath+w.videoName);
 	if (w.vtool->capture.isOpened() == false) {
 		cerr << "Load Video Failed!\n";
@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
 //double fps = capture.get(CV_CAP_PROP_FPS);
 	w.vtool->dead_counts = (int)(min_threshold * 60 * w.vtool->fps);  //连续超过dead_counts帧如果都为死亡状态，则判定为死亡  
 	//capture.set(CV_CAP_PROP_POS_FRAMES, 6700);
-	/*w.vtool->capture.set(CV_CAP_PROP_POS_FRAMES, 2 * 60 * w.vtool->fps);
+	w.vtool->capture.set(CV_CAP_PROP_POS_FRAMES, 100);
+	/*w.vtool->capture.set(CV_CAP_PROP_POS_FRAMES, 1 * 60 * w.vtool->fps);
 	w.vtool->capture >> w.vtool->background;
 	resize(w.vtool->background, w.vtool->background, Size(), 0.65, 0.65);
 	cvtColor(w.vtool->background, w.vtool->background, CV_BGR2GRAY);*/

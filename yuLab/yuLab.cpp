@@ -100,12 +100,15 @@ void yuLab::createActions() {
 	smoothingAction = new QAction(tr("smooth"), this);
 	smoothingAction->setDisabled(true);
 	demarcateAction = new QAction(tr("demarcate"), this);
+	dataViewAction = new QAction(tr("data view"), this);
+	dataViewAction->setDisabled(true);
 	//事件关联
 	connect(openFileAction, SIGNAL(triggered()), this, SLOT(ShowOpenFile()));
 	connect(saveFileAction, SIGNAL(triggered()), this, SLOT(saveFile()));
 	connect(bgRemoveAction, SIGNAL(triggered()), this, SLOT(createRemovingWin()));
 	//nnect(demarcateAction, SIGNAL(triggered()), this, SLOT(createDemarcatingWin()));
 	connect(demarcateAction, SIGNAL(triggered()), this, SLOT(toggleDemarcate()));
+	connect(dataViewAction, SIGNAL(triggered()), this, SLOT(toggleDataView()));
 	connect(smoothingAction, SIGNAL(triggered()), this, SLOT(toggleSmooth()));
 	connect(StPa, SIGNAL(clicked()), this, SLOT(togglePlayback()));
 	connect(this, SIGNAL(updateSlider()), this, SLOT(onUpdating()));/**/
@@ -131,6 +134,8 @@ void yuLab::createMenus() {
 	menuBar()->addAction(smoothingAction);
 	startsmth = false;
 	menuBar()->addAction(demarcateAction);
+	menuBar()->addAction(dataViewAction);
+	isDataView = false;
 }
 
 void yuLab::fitcut() {
@@ -281,14 +286,42 @@ void yuLab::recoPro() {
 					continue;
 				if (isCalculating) {
 					//vtool->countCenter(rects, vtool->xia_centers);
+					++vtool->data_n;
+					int j = vtool->data_n-1;
 					vtool->xia_centers.push_back(rects[i].center);
 					vtool->ticks.push_back(vtool->t_tick);
+					if (j == 0) {
+						vtool->journey.push_back(0);
+						vtool->speed.push_back(0);
+						vtool->acspeed.push_back(0);
+						vtool->angle.push_back(0);
+					}
+					else {
+						vtool->journey.push_back(countDistance1(vtool->xia_centers[j], vtool->xia_centers[j-1]));
+						vtool->speed.push_back(vtool->journey[j]/(vtool->ticks[j]-vtool->ticks[j-1]));
+						vtool->acspeed.push_back(0.001*(abs(vtool->speed[j]- vtool->speed[j-1])/ (vtool->ticks[j] - vtool->ticks[j - 1])));
+						if (j == 1)
+							vtool->angle.push_back(0);
+						else
+							vtool->angle.push_back(coutAngle1(vtool->xia_centers[j-2], vtool->xia_centers[j - 1], vtool->xia_centers[j],vtool->journey[j-1], vtool->journey[j-2]));
+						if (isDataView) {
+							//dataTable->setItem(0, 0, new QTableWidgetItem(tr("1")));
+							dataTable->setItem(0, 0, new QTableWidgetItem(QString::number(vtool->journey[j], 'g')));
+							dataTable->setItem(0, 1, new QTableWidgetItem(QString::number(vtool->speed[j], 'g')));
+							dataTable->setItem(0, 2, new QTableWidgetItem(QString::number(vtool->acspeed[j], 'g')));
+							dataTable->setItem(0, 3, new QTableWidgetItem(QString::number(vtool->angle[j], 'g')));
+							dataTable->setItem(0, 4, new QTableWidgetItem(tr("alive")));
+						}
+					}
 				}
 				//cout << currentFrame(rects[i]).channels() << endl;
 				int result = vtool->detect.judge(vtool->currentFrame(t_rect).clone());      //用SVM判定该虾的姿势（死的还是活的）
 				if (result == 1) {    //活着的
 					(*vtool->status)[i] = 0;
 					putText(vtool->currentFrame, "alive", t_rect.tl(), 1, 1, Scalar(0, 255, 0));
+					if (isDataView) {
+						putText(vtool->currentFrame, "1", t_rect.tl(), 1, 1, Scalar(0, 0, 255));
+					}
 				}
 				else {          //判定为死亡
 					(*vtool->status)[i]++;
@@ -400,6 +433,48 @@ void yuLab::toggleDemarcate() {
 	connect(lenSubmit, SIGNAL(clicked()), this, SLOT(toggleLenSubmit()));
 }
 
+void yuLab::toggleDataView() {
+	/**右悬停窗口**/
+	dataViewDock = new QDockWidget(tr("data"), this);
+	dataViewDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+	dataViewDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+	dataView_layout = new QVBoxLayout(dataViewDock);
+
+	dvtable = new QWidget();
+	dataTable = new QTableWidget();
+	dataTable->resizeColumnsToContents();
+	data_row = 2;
+	dataTable->setColumnCount(5);
+	dataTable->setRowCount(data_row);
+	dataTable->horizontalHeader()->setDefaultSectionSize(150);
+	dataTable->horizontalHeader()->setSectionsClickable(false);
+	dataTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	QStringList header;
+	header << tr("journey(mm)") << tr("speed(m/s)")
+		<< tr("aspeed(m/s^2)") << tr("angle(degree)") << tr("dead time(s)");
+	dataTable->setHorizontalHeaderLabels(header);
+
+	saveData = new QPushButton(tr("save data"));
+
+	
+	dataView_layout->addWidget(dataTable);
+	dataView_layout->addWidget(saveData);
+
+	dataView_layout->setMargin(15);
+	dataView_layout->setSpacing(10);
+	dataView_layout->setSizeConstraint(QLayout::SetFixedSize);/**/
+
+	dvtable->setLayout(dataView_layout);
+	dataViewDock->setWidget(dvtable);
+
+	isDataView = true;
+	//demarcateDock->setLayout(input_layout);
+	addDockWidget(Qt::RightDockWidgetArea, dataViewDock);
+
+	//connect(selected, SIGNAL(clicked()), this, SLOT(toggleSelect()));
+	//connect(lenSubmit, SIGNAL(clicked()), this, SLOT(toggleLenSubmit()));
+}
+
 void yuLab::toggleSelect() {
 	if (ImageLabel->startdm) {
 		selected->setText("select");
@@ -427,7 +502,7 @@ void yuLab::toggleLenSubmit() {
 		tip3->setText(tlen);
 	}
 	vtool->lenthRatio = inputLen / selectLen;
-
+	dataViewAction->setDisabled(false);
 }
 
 void yuLab::toggleSmooth() {

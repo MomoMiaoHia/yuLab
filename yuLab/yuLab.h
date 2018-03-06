@@ -42,6 +42,7 @@ private:
 	QAction *bgRemoveAction;
 	QAction *smoothingAction;
 	QAction *demarcateAction;
+	QAction *dataViewAction;
 
 	
 	QImage *image;
@@ -68,6 +69,7 @@ private:
 	bool mstatus;   //播放状态
 	bool startDetect;	//检测状态
 	bool isCalculating;	//计算数值状态
+	bool isDataView;	//显示数据状态
 	//QTimer *timer;
 	int maxV = 1000;  //进度条最大值
 	float selectLen;	//标定选择像素值
@@ -89,6 +91,14 @@ private:
 	QPushButton *selected;
 	QPushButton *lenSubmit;
 	QWidget *detable, *mvtable;
+
+	//dataView停靠窗口
+	QDockWidget *dataViewDock;
+	QTableWidget *dataTable;
+	QVBoxLayout *dataView_layout;
+	QPushButton *saveData;
+	QWidget *dvtable;
+	int data_row;
 
 	
 
@@ -123,6 +133,7 @@ protected slots:
 	void createRemovingWin();
 	void createDemarcatingWin();	
 	void toggleDemarcate();	//标定窗口
+	void toggleDataView();	//数据窗口
 	void toggleSelect();
 	//void onSelectFinished();
 	void toggleLenSubmit();

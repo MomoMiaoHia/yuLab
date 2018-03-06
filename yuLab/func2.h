@@ -33,6 +33,10 @@ void countDistance(vector<Point2f>&input, vector<float>&output) {
 	}
 }
 
+float countDistance1(Point2f &input1, Point2f &input2) {
+	return getPointPath(input1, input2);
+}
+
 void countSpeed(vector<float>&distance, vector<float>&speed,vector<float>& time) {
 	int n = distance.size();
 	if (n == 0)
@@ -42,6 +46,8 @@ void countSpeed(vector<float>&distance, vector<float>&speed,vector<float>& time)
 		speed.push_back(distance[i] / (time[i]-time[i-1]));
 	}
 }
+
+
 
 void coutAngle(vector<Point2f>&input,vector<float>&distance, vector<float>&output) {
 	int n = input.size();
@@ -62,6 +68,19 @@ void coutAngle(vector<Point2f>&input,vector<float>&distance, vector<float>&outpu
 		else
 			output.push_back(acosf((vecs[i - 1].x*vecs[i].x + vecs[i - 1].y*vecs[i].y) / (distance[i - 1] * distance[i]))*57.32);
 	}
+}
+
+float coutAngle1(Point2f &input1, Point2f &input2, Point2f &input3, float &d1, float &d2) {
+	Point vecs1,vecs2;
+	//vector<float>angle(n);
+	//angle[0] = 0;
+	vecs1.x = input2.x - input1.x;
+	vecs1.y = input2.y - input1.y;
+	vecs2.x = input3.x - input2.x;
+	vecs2.y = input3.y - input2.y;
+	if (d1 < 1e-9 || d2 < 1e-9)
+		return 0;
+	return acosf((vecs1.x*vecs2.x + vecs1.y*vecs2.y) / (d1 * d2))*57.32;
 }
 
 float ratioChange(float lenth, float ratio) {

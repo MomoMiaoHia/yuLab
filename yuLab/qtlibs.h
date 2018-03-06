@@ -26,6 +26,8 @@
 #include <QPainter>
 #include <QDialog>
 #include <QSizePolicy>
+#include <QTableWidget>
+#include <QStringList>
 #include "myInputDlg.h"
 #include "myDlg.h"
 

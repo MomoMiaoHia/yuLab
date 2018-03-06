@@ -44,7 +44,9 @@ public:
 	vector<float> journey;
 	vector<float> speed;
 	vector<float> acspeed;
-	vector<float> angel;
+	vector<float> angle;
+	float jours = 0;
+	int data_n = 0;
 	//Mat ezRoi;	//二值图
 	//鼠标回调函数
 	Rect initRect;
